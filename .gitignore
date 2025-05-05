@@ -1,0 +1,37 @@
+# .NET build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.user
+*.csproj.user
+*.suo
+*.sln.docstates
+
+# Docker
+docker-compose.override.yml
+*.env
+.env.*
+
+# Postgres
+*.pgsql
+*.pgpass
+pgdata/
+
+# Redis
+dump.rdb
+appendonly.aof
+
+# General
+.vscode/
+.idea/
+*.swp
+*.tmp
+*.bak
+*.old
+*.orig
+.DS_Store
+Thumbs.db
