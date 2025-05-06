@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+
+  srm-auth:
+    build: ../SRMAuth
+    container_name: srm-auth
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  srm-core:
+    build: ../SRMCore
+    container_name: srm-core
+    ports:
+      - "5002:80"
+
+  srm-agent:
+    build: ../SRMAgent
+    container_name: srm-agent
+    ports:
+      - "5003:80"
+
+  srm-app:
+    build: ../SRMApp
+    container_name: srm-app
+    ports:
+      - "5004:80"
+
+  db-mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db-mssql
+    environment:
+      SA_PASSWORD: "password123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  db-redis:
+    image: redis
+    container_name: db-redis
+    ports:
+      - "6379:6379"
+
+  issue-tracker:
+    image: redmine
+    container_name: redmine
+    environment:
+      REDMINE_DB_MYSQL: dbmysql
+      REDMINE_DB_PASSWORD: example
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dbmysql
+
+  dbmysql:
+    image: mysql:5.7
+    container_name: dbmysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: redmine
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
