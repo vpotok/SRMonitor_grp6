@@ -1,0 +1,6 @@
+@SRMCore_HostAddress = http://localhost:5266
+
+GET {{SRMCore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

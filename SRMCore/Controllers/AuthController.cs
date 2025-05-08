@@ -1,47 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using Npgsql;
-using System.Data;
+using SRMCore.Models;
+using SRMCore.Services;
+
+namespace SRMCore.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IConfiguration _config;
+    private readonly AuthService _authService;
 
-    public AuthController(IHttpClientFactory httpClientFactory, IConfiguration config)
+    public AuthController(AuthService authService)
     {
-        _httpClientFactory = httpClientFactory;
-        _config = config;
+        _authService = authService;
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public IActionResult Login([FromBody] LoginRequest loginRequest)
     {
-        using var conn = new NpgsqlConnection(_config.GetConnectionString("DefaultConnection"));
-        await conn.OpenAsync();
-        using var cmd = new NpgsqlCommand("SELECT * FROM users WHERE username = @u AND password = @p", conn);
-        cmd.Parameters.AddWithValue("u", request.Username);
-        cmd.Parameters.AddWithValue("p", request.Password); // Use hashing in production
+        var user = _authService.Authenticate(loginRequest.Username, loginRequest.Password);
+        if (user == null)
+        {
+            return Unauthorized(new { message = "Invalid username or password" });
+        }
 
-        using var reader = await cmd.ExecuteReaderAsync();
-        if (!reader.Read()) return Unauthorized();
-
-        var client = _httpClientFactory.CreateClient();
-        var tokenResponse = await client.PostAsync(
-            _config["TokenService:Url"] + "/token",
-            new StringContent(JsonSerializer.Serialize(new { username = request.Username }), Encoding.UTF8, "application/json")
-        );
-
-        if (!tokenResponse.IsSuccessStatusCode) return StatusCode(500);
-        var jwt = await tokenResponse.Content.ReadAsStringAsync();
-
-        Response.Cookies.Append("jwt", jwt, new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Strict });
-        return Ok(new { message = "Logged in" });
+        return Ok(new { message = "Login successful", user });
     }
 }
-
-public record LoginRequest(string Username, string Password);
