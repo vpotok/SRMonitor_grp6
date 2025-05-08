@@ -23,6 +23,8 @@ public class AuthController : ControllerBase
         }
 
         var token = _tokenService.GenerateToken(loginRequest.Username, loginRequest.Role);
+
+        // Return the token as a JSON object
         return Ok(new { token });
     }
 }

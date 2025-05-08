@@ -7,21 +7,34 @@
 </template>
 
 <script>
+import { loginUser, getUserRole } from '@/services/authService'
+
 export default {
   data() {
-    return { username: '', password: '' };
+    return {
+      username: '',
+      password: ''
+    }
   },
   methods: {
     async login() {
-      const res = await fetch("/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: this.username, password: this.password })
-      });
-      if (res.ok) alert("Logged in!");
-      else alert("Login failed.");
+      try {
+        // Call the loginUser function from authService
+        await loginUser({ username: this.username, password: this.password })
+
+        // Redirect based on the user's role
+        const role = getUserRole()
+        if (role === 'admin') {
+          this.$router.push('/admin')
+        } else if (role === 'customer') {
+          this.$router.push('/customer')
+        } else {
+          alert('Unknown role')
+        }
+      } catch (error) {
+        alert('Login failed. Please check your credentials.')
+      }
     }
   }
-};
+}
 </script>

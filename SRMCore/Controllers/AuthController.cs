@@ -1,29 +1,38 @@
 using Microsoft.AspNetCore.Mvc;
-using SRMCore.Models;
 using SRMCore.Services;
+using System.Threading.Tasks;
 
-namespace SRMCore.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+namespace SRMCore.Controllers
 {
-    private readonly AuthService _authService;
-
-    public AuthController(AuthService authService)
+    [ApiController]
+    [Route("api/auth")]
+    public class AuthController : ControllerBase
     {
-        _authService = authService;
-    }
+        private readonly AuthService _authService;
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest loginRequest)
-    {
-        var user = _authService.Authenticate(loginRequest.Username, loginRequest.Password);
-        if (user == null)
+        public AuthController(AuthService authService)
         {
-            return Unauthorized(new { message = "Invalid username or password" });
+            _authService = authService;
         }
 
-        return Ok(new { message = "Login successful", user });
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        {
+            // Validate user credentials (replace with actual validation logic)
+            if (loginRequest.Username != "admin" || loginRequest.Password != "admin123")
+            {
+                return Unauthorized(new { message = "Invalid username or password" });
+            }
+
+            // Generate token using AuthService
+            var token = await _authService.GenerateToken(loginRequest.Username, "admin");
+            return Ok(new { token });
+        }
+    }
+
+    public class LoginRequest
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

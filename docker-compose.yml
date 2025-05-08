@@ -28,6 +28,17 @@ services:
     depends_on:
       - redis
 
+  srmapp:
+    build:
+      context: ./SRMApp
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - VITE_BACKEND_API_URL=http://srmcore:80
+    depends_on:
+      - srmcore
+
   postgres:
     image: postgres:15
     container_name: postgres

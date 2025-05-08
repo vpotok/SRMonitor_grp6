@@ -1,20 +1,28 @@
-using SRMCore.Data;
-using SRMCore.Models;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
 
-namespace SRMCore.Services;
-
-public class AuthService
+namespace SRMCore.Services
 {
-    private readonly AppDbContext _dbContext;
-
-    public AuthService(AppDbContext dbContext)
+    public class AuthService
     {
-        _dbContext = dbContext;
-    }
+        private readonly HttpClient _httpClient;
 
-    public User? Authenticate(string username, string password)
-    {
-        var user = _dbContext.Users.FirstOrDefault(u => u.Username == username && u.PasswordHash == password);
-        return user;
+        public AuthService(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public async Task<string> GenerateToken(string username, string role)
+        {
+            var response = await _httpClient.PostAsJsonAsync("http://srmauth:80/api/auth/generate-token", new
+            {
+                username,
+                role
+            });
+
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }

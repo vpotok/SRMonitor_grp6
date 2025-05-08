@@ -1,21 +1,28 @@
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
 
+const API_BASE_URL = process.env.VITE_BACKEND_API_URL || 'http://localhost:5266'
 
 export async function loginUser(credentials) {
-  const response = await axios.post('/api/login', credentials)
-  console.log('Response:', response)
-  const token = response.data.token
-  localStorage.setItem('token', token)
-  return token
+  try {
+    // Send login request to SRMCore
+    const response = await axios.post(`${API_BASE_URL}/api/auth/login`, credentials)
+    console.log('Response:', response)
+
+    // Extract the token from the response
+    const token = response.data.token
+    localStorage.setItem('token', token) // Store the token in localStorage
+    return token
+  } catch (error) {
+    console.error('Login failed:', error)
+    throw error
+  }
 }
 
 export function getUserRole() {
   const token = localStorage.getItem('token')
-  console.log('Token:', token)
   if (!token) return null
   const decoded = jwtDecode(token)
-  console.log('decoded:', decoded)
   return decoded.role
 }
 
