@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: authdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  redis:
+    image: redis:7
+    networks:
+      - backend
+
+  backend:
+    build: ./backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=authdb;Username=user;Password=password
+      - TokenService__Url=http://tokenservice:5002
+    depends_on:
+      - postgres
+      - tokenservice
+    networks:
+      - backend
+
+  tokenservice:
+    build: ./tokenservice
+    environment:
+      - Redis__ConnectionString=redis:6379
+      - Jwt__Secret=SuperSecretKey
+    depends_on:
+      - redis
+    networks:
+      - backend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - frontend
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  frontend:
+  backend:
