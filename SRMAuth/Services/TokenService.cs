@@ -23,7 +23,7 @@ public class TokenService
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, username),
-            new Claim(ClaimTypes.Role, role),
+            new Claim("role", role), 
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -41,6 +41,6 @@ public class TokenService
         var db = _redis.GetDatabase();
         db.StringSet($"token:{username}", tokenString, TimeSpan.FromHours(1));
 
-        return tokenString;
+        return tokenString; // Return only the raw JWT token
     }
 }

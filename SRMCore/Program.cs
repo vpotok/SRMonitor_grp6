@@ -1,4 +1,8 @@
 using SRMCore.Services;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +20,9 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins("http://localhost:8080") // Allow SRMApp frontend
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Allow cookies and credentials
+                  
         });
 });
 
@@ -25,10 +31,28 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpClient<AuthService>();
 
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("0101YourSuperSecretKeyHereThatIsAtLeast32CharsLong0101")),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = "SRMAuth",
+            ValidAudience = "SRMCore",
+            ValidateLifetime = true
+        };
+    });
+
+
 var app = builder.Build();
 
-// Use CORS
-app.UseCors("AllowFrontend");
+
+
+// Use JWT Middleware
+app.UseMiddleware<SRMCore.Middleware.JwtMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -37,7 +61,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Use CORS
+app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHttpsRedirection();
+
 app.MapControllers();
 app.Run();

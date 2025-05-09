@@ -14,8 +14,8 @@ public class AppDbContext : DbContext
     {
         // Seed initial data for Users
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Username = "admin", PasswordHash = "admin123", Role = "admin" },
-            new User { Id = 2, Username = "user", PasswordHash = "user123", Role = "user" }
+            new User { Id = 1, Username = "admin", PasswordHash = "admin123", Role = "admin", InitialAccess = false },
+            new User { Id = 2, Username = "user", PasswordHash = "user123", Role = "user", InitialAccess = false }
         );
 
         // Seed initial data for Devices

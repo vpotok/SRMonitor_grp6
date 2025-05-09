@@ -17,4 +17,8 @@ public class User
     [Required]
     [MaxLength(20)]
     public string Role { get; set; } = string.Empty;
+
+    [Required]
+    public bool InitialAccess { get; set; } = true;
+    
 }

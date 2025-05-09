@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SRMAuth.Services;
+using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace SRMAuth.Controllers;
 
@@ -27,6 +31,46 @@ public class AuthController : ControllerBase
         // Return the token as a JSON object
         return Ok(new { token });
     }
+    [HttpPost("validate-token")]
+    public IActionResult ValidateToken([FromBody] TokenValidationRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Token))
+        {
+            return BadRequest(new { message = "Token is required" });
+        }
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes("0101YourSuperSecretKeyHereThatIsAtLeast32CharsLong0101");
+
+        try
+        {
+            tokenHandler.ValidateToken(request.Token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = "SRMAuth",
+                ValidAudience = "SRMCore",
+                ValidateLifetime = true
+            }, out SecurityToken validatedToken);
+
+            // Extract user information (e.g., username) from the token
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var username = jwtToken.Subject;
+
+            return Ok(new { isValid = true, username });
+        }
+        catch
+        {
+            return Ok(new { isValid = false });
+        }
+    }
+
+public class TokenValidationRequest
+{
+    public string Token { get; set; } = string.Empty;
+}
 }
 
 public class LoginRequest

@@ -1,37 +1,25 @@
-// src/services/device.js
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5266'
 
-// Assumes the JWT is stored in localStorage after login
-const getAuthHeader = () => {
-  const token = localStorage.getItem('token')
-  return { Authorization: `Bearer ${token}` }
+// Helper function to retrieve the token from the cookie
+function getAuthTokenFromCookie() {
+  const cookie = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('auth_token='))
+  return cookie ? cookie.split('=')[1] : null
 }
 
+// Fetch devices
 export async function fetchDevices() {
   try {
-    //const response = await axios.get(`${API_URL}/devices`, {
-    const response = await axios.get('/api/devices', {
-      headers: getAuthHeader()
+    const token = getAuthTokenFromCookie()
+    const response = await axios.get(`${API_URL}/api/protected/devices`, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     return response.data
   } catch (error) {
     console.error('Failed to fetch devices:', error)
     return []
-  }
-}
-
-export async function updateDeviceAction(deviceId, action) {
-  try {
-    const response = await axios.post(
-      `${API_URL}/devices/${deviceId}/action`,
-      { action },
-      { headers: getAuthHeader() }
-    )
-    return response.data
-  } catch (error) {
-    console.error(`Failed to update device ${deviceId}:`, error)
-    throw error
   }
 }

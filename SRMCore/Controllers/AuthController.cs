@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SRMCore.Services;
-using System.Threading.Tasks;
+
 
 namespace SRMCore.Controllers
 {
@@ -26,8 +26,20 @@ namespace SRMCore.Controllers
 
             // Generate token using AuthService
             var token = await _authService.GenerateToken(loginRequest.Username, "admin");
-            return Ok(new { token });
+
+            // Set the raw token as an HttpOnly cookie
+            Response.Cookies.Append("auth_token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // Use HTTPS in production
+                SameSite = SameSiteMode.Strict,
+                Path = "/",
+                Expires = DateTime.UtcNow.AddHours(1)
+            });
+
+            return Ok(new { message = "Login successful" });
         }
+        
     }
 
     public class LoginRequest

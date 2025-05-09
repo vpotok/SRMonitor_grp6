@@ -30,6 +30,7 @@ export default {
           this.$router.push('/customer')
         } else {
           alert('Unknown role')
+          console.error('Unknown Role:', role)
         }
       } catch (error) {
         alert('Login failed. Please check your credentials.')
