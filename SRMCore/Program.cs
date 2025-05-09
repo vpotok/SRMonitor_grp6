@@ -1,35 +1,72 @@
+using SRMCore.Services;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
 
-namespace SRMCore;
 
-public class Program
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
+// Configure CORS
+builder.Services.AddCors(options =>
 {
-    public static void Main(string[] args)
-    {
-        var builder = WebApplication.CreateBuilder(args);
-
-        // Add services to the container.
-
-        builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-
-        var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
+    options.AddPolicy("AllowFrontend",
+        policy =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+            policy.WithOrigins("http://localhost:8080") // Allow SRMApp frontend
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Allow cookies and credentials
+                  
+        });
+});
 
-        app.UseHttpsRedirection();
+// Register AuthService
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddHttpClient<AuthService>();
 
-        app.UseAuthorization();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("0101YourSuperSecretKeyHereThatIsAtLeast32CharsLong0101")),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = "SRMAuth",
+            ValidAudience = "SRMCore",
+            ValidateLifetime = true
+        };
+    });
 
 
-        app.MapControllers();
+var app = builder.Build();
 
-        app.Run();
-    }
+
+
+// Use JWT Middleware
+app.UseMiddleware<SRMCore.Middleware.JwtMiddleware>();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+// Use CORS
+app.UseCors("AllowFrontend");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseHttpsRedirection();
+
+app.MapControllers();
+app.Run();
