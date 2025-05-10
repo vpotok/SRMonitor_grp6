@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { loginUser, getUserRole } from '@/services/authService'
+import { loginUser } from '@/services/authService'
 
 export default {
   data() {
@@ -22,16 +22,8 @@ export default {
         // Call the loginUser function from authService
         await loginUser({ username: this.username, password: this.password })
 
-        // Redirect based on the user's role
-        const role = getUserRole()
-        if (role === 'admin') {
-          this.$router.push('/admin')
-        } else if (role === 'customer') {
-          this.$router.push('/customer')
-        } else {
-          alert('Unknown role')
-          console.error('Unknown Role:', role)
-        }
+        // Redirect to the dashboard
+        this.$router.push('/dashboard')
       } catch (error) {
         alert('Login failed. Please check your credentials.')
       }

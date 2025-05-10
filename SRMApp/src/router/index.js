@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import CustomerDashboardView from '../views/CustomerDashboardView.vue'
-import AdminDashboardView from '../views/AdminDashboardView.vue'
-import { getUserRole, isAuthenticated } from '../services/authService.js'
+import DashboardView from '../views/DashboardView.vue'
+import { isAuthenticated } from '../services/authService.js'
 
 const routes = [
   {
@@ -12,29 +11,21 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'DashboardRedirect',
-    beforeEnter: (to, from, next) => {
-      if (!isAuthenticated()) {
+    name: 'Dashboard',
+    component: DashboardView,
+    beforeEnter: async (to, from, next) => {
+      // Check if the user is authenticated
+      const authenticated = await isAuthenticated()
+      if (!authenticated) {
         return next('/') // Redirect to Login if not authenticated
       }
 
-      const role = getUserRole()
-
-      if (role === 'admin') return next('/admin')
-      if (role === 'customer') return next('/customer')
-
-      return next('/') // Default fallback
+      next() // Allow access to the dashboard
     }
   },
   {
-    path: '/customer',
-    name: 'CustomerDashboard',
-    component: CustomerDashboardView
-  },
-  {
-    path: '/admin',
-    name: 'AdminDashboard',
-    component: AdminDashboardView
+    path: '/:pathMatch(.*)*', // Catch-all route for unknown paths
+    redirect: '/' // Redirect to the login page
   }
 ]
 

@@ -1,18 +1,7 @@
 import axios from 'axios'
-import { jwtDecode } from 'jwt-decode'
+
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:5266'
-
-// Helper function to retrieve the token from the cookie
-function getAuthTokenFromCookie() {
-  const cookie = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('auth_token='))
-  const token = cookie ? cookie.split('=')[1] : null
-
-  console.log('Retrieved Token:', token) // Debugging log
-  return token
-}
 
 // Login user and set the token in the cookie (already handled by the backend)
 export async function loginUser(credentials) {
@@ -27,28 +16,47 @@ export async function loginUser(credentials) {
   }
 }
 
-// Get the user's role from the token
-export function getUserRole() {
-  const token = getAuthTokenFromCookie()
-  console.log('Retrieved Token:', token) // Debugging log
-  if (!token) return null
-
+export async function logoutUser() {
   try {
-    const decoded = jwtDecode(token)
-    console.log('Decoded Token:', decoded) // Debugging log
-    return decoded.role // Extract the "role" claim
+    await axios.post('http://localhost:5266/api/auth/logout', {}, {
+      withCredentials: true // Include cookies
+    })
+    window.location.href = '/' // Redirect to login page
   } catch (error) {
-    console.error('Failed to decode token:', error)
-    return null
+    console.error('Logout failed:', error)
   }
 }
 
-// Check if the user is authenticated
-export function isAuthenticated() {
-  return !!getAuthTokenFromCookie() // Return true if the token exists
+
+export async function getUserRole() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/auth/role`, {
+      withCredentials: true
+    });
+    return response.data.role;
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {}, {
+        withCredentials: true
+      });
+      const response = await axios.get(`${API_BASE_URL}/api/auth/role`, {
+        withCredentials: true
+      });
+      return response.data.role;
+    }
+    throw error;
+  }
 }
 
-// Logout user by clearing the cookie
-export function logoutUser() {
-  document.cookie = 'auth_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure; SameSite=Strict; HttpOnly'
+// Check if the user is authenticated by validating the token with the backend
+export async function isAuthenticated() {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/auth/validate`, {
+      withCredentials: true // Include the cookie in the request
+    })
+    return response.data.isAuthenticated
+  } catch (error) {
+    console.error('Failed to validate authentication:', error)
+    return false
+  }
 }

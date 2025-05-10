@@ -1,8 +1,5 @@
 using SRMCore.Services;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Text;
-
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -22,7 +18,6 @@ builder.Services.AddCors(options =>
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); // Allow cookies and credentials
-                  
         });
 });
 
@@ -30,26 +25,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpClient<AuthService>();
 
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("0101YourSuperSecretKeyHereThatIsAtLeast32CharsLong0101")),
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidIssuer = "SRMAuth",
-            ValidAudience = "SRMCore",
-            ValidateLifetime = true
-        };
-    });
-
-
 var app = builder.Build();
-
-
 
 // Use JWT Middleware
 app.UseMiddleware<SRMCore.Middleware.JwtMiddleware>();
@@ -63,8 +39,6 @@ if (app.Environment.IsDevelopment())
 
 // Use CORS
 app.UseCors("AllowFrontend");
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
