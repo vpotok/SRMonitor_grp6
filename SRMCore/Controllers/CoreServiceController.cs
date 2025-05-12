@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SRMCore.Data;
 using SRMCore.Models;
 using SRMCore.Services;
+using System.Text.Json;
 
 namespace SRMCore.Controllers;
 
@@ -11,70 +12,96 @@ namespace SRMCore.Controllers;
 public class CoreServiceController : ControllerBase
 {
     private readonly CoreDbContext _db;
+    private readonly IAgentAuthService _agentAuth;
+    private readonly IAlarmService _alarm;
     private readonly ITokenValidationService _tokenValidator;
-    private readonly IAlarmService _alarmService;
 
-    public CoreServiceController(CoreDbContext db, ITokenValidationService tokenValidator, IAlarmService alarmService)
+    public CoreServiceController(
+        CoreDbContext db,
+        IAgentAuthService agentAuth,
+        IAlarmService alarm,
+        ITokenValidationService tokenValidator)
     {
         _db = db;
+        _agentAuth = agentAuth;
+        _alarm = alarm;
         _tokenValidator = tokenValidator;
-        _alarmService = alarmService;
     }
 
-    // POST /api/coreservice/shelly/data
-    [HttpPost("shelly/data")]
-    public async Task<IActionResult> PostShellyData([FromBody] ShellyData incoming)
+    [HttpPost("shelly")]
+    public async Task<IActionResult> ReceiveShellyData([FromBody] ShellyDataDto dto)
     {
-        var token = Request.Headers.Authorization?.ToString()?.Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var token = Request.Headers["X-AGENT-TOKEN"].ToString();
+        if (string.IsNullOrWhiteSpace(token)) return Unauthorized();
 
-        var validated = await _tokenValidator.ValidateTokenAsync(token);
-        if (validated == null || !validated.Valid) return Unauthorized();
+        var comId = await _agentAuth.ValidateAgentAsync(token);
+        if (comId == null) return Unauthorized();
 
-        incoming.CustomerId = validated.CustomerId;
-        incoming.Timestamp = DateTime.UtcNow;
+        var log = new Log
+        {
+            ComId = comId.Value,
+            Timestamp = DateTime.UtcNow,
+            Message = JsonSerializer.Serialize(dto),
+            Type = "shelly"
+        };
 
-        _db.ShellyData.Add(incoming);
+        _db.Logs.Add(log);
         await _db.SaveChangesAsync();
 
-        await _alarmService.CheckAndSendAlertAsync(incoming); // Schritt 7
+        await _alarm.CheckAndTriggerRedmineIfNeededAsync(comId.Value, dto);
 
-        return Ok();
+        return Ok(new { status = "saved", time = log.Timestamp });
     }
 
-    // GET /api/coreservice/data (für Kunden)
-    [HttpGet("data")]
-    public async Task<IActionResult> GetMyData()
+    [HttpGet("logs")]
+    public async Task<IActionResult> GetLogs()
     {
-        var token = Request.Headers.Authorization?.ToString()?.Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var authHeader = Request.Headers.Authorization.ToString();
+        if (!authHeader.StartsWith("Bearer ")) return Unauthorized();
 
-        var validated = await _tokenValidator.ValidateTokenAsync(token);
-        if (validated == null || !validated.Valid) return Unauthorized();
+        var jwt = authHeader.Replace("Bearer ", "");
+        var token = await _tokenValidator.ValidateTokenAsync(jwt);
+        if (token == null || !token.Valid) return Unauthorized();
 
-        var data = await _db.ShellyData
-            .Where(d => d.CustomerId == validated.CustomerId)
-            .OrderByDescending(d => d.Timestamp)
+        var query = _db.Logs
+            .Where(l => l.ComId == token.CustomerId)
+            .OrderByDescending(l => l.Timestamp);
+
+        if (token.Role?.ToLower() == "customer")
+            query = (IOrderedQueryable<Log>)query.Take(100);
+
+        var logs = await query
+            .Select(l => new { l.Timestamp, l.Type, l.Message })
             .ToListAsync();
 
-        return Ok(data);
+        return Ok(logs);
     }
 
-    // GET /api/coreservice/data/all (nur für Admins)
-    [HttpGet("data/all")]
-    public async Task<IActionResult> GetAllData()
+    [HttpPost("ping")]
+    public async Task<IActionResult> ReceivePingResult([FromBody] PingResultDto dto)
     {
-        var token = Request.Headers.Authorization?.ToString()?.Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(token)) return Unauthorized();
+        var token = Request.Headers["X-AGENT-TOKEN"].ToString();
+        if (string.IsNullOrWhiteSpace(token)) return Unauthorized();
 
-        var validated = await _tokenValidator.ValidateTokenAsync(token);
-        if (validated == null || !validated.Valid || validated.Role != "Employee")
-            return Forbid();
+        var comId = await _agentAuth.ValidateAgentAsync(token);
+        if (comId == null) return Unauthorized();
 
-        var data = await _db.ShellyData
-            .OrderByDescending(d => d.Timestamp)
-            .ToListAsync();
+        var knownIp = await _db.IPs.AnyAsync(i => i.ComId == comId && i.IpAddress == dto.IpAddress);
+        if (!knownIp) return BadRequest("IP-Adresse ist für diese Firma nicht registriert.");
 
-        return Ok(data);
+        var resultMessage = $"Ping zu {dto.IpAddress}: {(dto.Success ? "OK" : "Fehlgeschlagen")} - {dto.ResponseTimeMs}ms";
+
+        var log = new Log
+        {
+            ComId = comId.Value,
+            Timestamp = DateTime.UtcNow,
+            Message = resultMessage,
+            Type = "ip"
+        };
+
+        _db.Logs.Add(log);
+        await _db.SaveChangesAsync();
+
+        return Ok(new { status = "logged", ip = dto.IpAddress });
     }
 }

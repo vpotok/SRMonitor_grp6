@@ -1,29 +1,30 @@
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
+using SRMCore.Data;
 
 namespace SRMCore.Services;
 
-public class RedmineService : IRedmineService
+public class RedmineService
 {
+    private readonly CoreDbContext _db;
     private readonly HttpClient _http;
-    private readonly IConfiguration _config;
 
-    public RedmineService(HttpClient http, IConfiguration config)
+    public RedmineService(CoreDbContext db, HttpClient http)
     {
+        _db = db;
         _http = http;
-        _config = config;
     }
 
-    public async Task CreateTicketAsync(string subject, string description)
+    public async Task CreateTicketAsync(int comId, string subject, string description)
     {
-        var baseUrl = _config["Redmine:BaseUrl"];
-        var apiKey = _config["Redmine:ApiKey"];
+        var redmine = await _db.Redmines.FirstOrDefaultAsync(r => r.ComId == comId);
+        if (redmine == null) return;
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/issues.json");
-        request.Headers.Add("X-Redmine-API-Key", apiKey);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        var req = new HttpRequestMessage(HttpMethod.Post, "https://redmine:443/issues.json");
+        req.Headers.Add("X-Redmine-API-Key", redmine.ApiKey);
+        req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         var body = new
         {
@@ -33,15 +34,15 @@ public class RedmineService : IRedmineService
                 tracker_id = 1,
                 priority_id = 1,
                 status_id = 1,
-                subject = subject,
-                description = description
+                subject,
+                description
             }
         };
 
         var json = JsonSerializer.Serialize(body);
-        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+        req.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _http.SendAsync(request);
+        var response = await _http.SendAsync(req);
         response.EnsureSuccessStatusCode();
     }
 }

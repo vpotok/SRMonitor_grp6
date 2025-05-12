@@ -1,31 +1,34 @@
+using SRMCore.Data;
 using SRMCore.Models;
 
 namespace SRMCore.Services;
 
 public class AlarmService : IAlarmService
 {
-    private readonly IRedmineService _redmine;
+    private readonly CoreDbContext _db;
+    private readonly RedmineService _redmine;
 
-    public AlarmService(IRedmineService redmine)
+    public AlarmService(CoreDbContext db, RedmineService redmine)
     {
+        _db = db;
         _redmine = redmine;
     }
 
-    public async Task CheckAndSendAlertAsync(ShellyData data)
+    public async Task CheckAndTriggerRedmineIfNeededAsync(int comId, ShellyDataDto data)
     {
-        var alerts = new List<string>();
+        var messages = new List<string>();
 
-        if (data.Temperature > 30) // Beispiel-Grenzwert
-            alerts.Add($"Temperatur zu hoch: {data.Temperature}°C");
+        if (data.Temperature > 30)
+            messages.Add($"Temperatur über 30°C: {data.Temperature}°C");
 
         if (data.DoorOpen)
-            alerts.Add("Tür ist geöffnet.");
+            messages.Add("Serverraumtür ist geöffnet");
 
-        if (alerts.Any())
-        {
-            var subject = "ALARM: Kritischer Zustand im Serverraum";
-            var description = string.Join("\n", alerts);
-            await _redmine.CreateTicketAsync(subject, description);
-        }
+        if (!messages.Any()) return;
+
+        var subject = "🚨 ALARM: Serverraumzustand kritisch";
+        var description = string.Join("\\n", messages);
+
+        await _redmine.CreateTicketAsync(comId, subject, description);
     }
 }

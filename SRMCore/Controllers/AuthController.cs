@@ -21,10 +21,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var user = await _userService.AuthenticateAsync(request.Username, request.Password);
-        if (user == null)
-            return Unauthorized("Ungültiger Benutzername oder Passwort.");
+        if (user == null) return Unauthorized("Ungültige Zugangsdaten.");
 
-        var token = await _tokenService.RequestTokenAsync(user.Id, user.Role, user.CustomerId);
+        Console.WriteLine($"🧪 TOKEN-REQUEST: uid={user.UserId}, role={user.Role}, comId={user.ComId}");
+
+        var token = await _tokenService.RequestTokenAsync(user.UserId, user.Role, user.ComId);
         return Ok(new { token });
     }
 }

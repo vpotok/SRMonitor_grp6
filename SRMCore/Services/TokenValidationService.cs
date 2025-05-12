@@ -16,7 +16,7 @@ public class TokenValidationService : ITokenValidationService
         _config = config;
     }
 
-    public async Task<TokenValidationResponse?> ValidateTokenAsync(string token)
+    public async Task<TokenValidationResult?> ValidateTokenAsync(string token)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, $"{_config["TokenService:BaseUrl"]}/api/validate");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -26,6 +26,6 @@ public class TokenValidationService : ITokenValidationService
         if (!response.IsSuccessStatusCode)
             return null;
 
-        return await response.Content.ReadFromJsonAsync<TokenValidationResponse>();
+        return await response.Content.ReadFromJsonAsync<TokenValidationResult>();
     }
 }

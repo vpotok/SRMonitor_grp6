@@ -4,5 +4,5 @@ namespace SRMCore.Services;
 
 public interface IAlarmService
 {
-    Task CheckAndSendAlertAsync(ShellyData data);
+    Task CheckAndTriggerRedmineIfNeededAsync(int comId, ShellyDataDto data);
 }

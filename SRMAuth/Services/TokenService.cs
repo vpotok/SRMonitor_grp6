@@ -14,25 +14,24 @@ public class TokenService
         _config = config;
     }
 
-    public string GenerateToken(string username, bool isAdmin)
+    public string GenerateToken(int userId, string role, int customerId)
+{
+    var claims = new[]
     {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, username),
-            new Claim(ClaimTypes.Role, isAdmin ? "Admin" : "Customer")
-        };
+        new Claim("user_id", userId.ToString()),
+        new Claim("role", role),
+        new Claim("customer_id", customerId.ToString())
+    };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds
-        );
+    var token = new JwtSecurityToken(
+        expires: DateTime.UtcNow.AddHours(1),
+        claims: claims,
+        signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
+
 }

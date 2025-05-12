@@ -4,5 +4,5 @@ namespace SRMCore.Services;
 
 public interface ITokenValidationService
 {
-    Task<TokenValidationResponse?> ValidateTokenAsync(string token);
+    Task<TokenValidationResult?> ValidateTokenAsync(string token);
 }

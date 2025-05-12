@@ -11,5 +11,6 @@ public class ShellyData
     public double? Battery { get; set; }
 
     public int CustomerId { get; set; }
-    public Customer Customer { get; set; } = null!;
+    public Customer? Customer { get; set; }
+
 }
