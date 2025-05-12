@@ -1,3 +1,56 @@
+networks:
+  redmine_net:
+  redmineDB_net:
+
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    networks:
+      - redmine_net
+      - redmineDB_net
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: ${REDMINE_DB_PASSWORD}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+    depends_on:
+      - db
+    volumes:
+      - ./redmine-init-scripts:/usr/src/redmine/init
+    command: >
+      bash -c "
+      /docker-entrypoint.sh rails server -b 0.0.0.0 &
+      echo '⏳ Waiting for Redmine to initialize...';
+      sleep 30;
+      bundle exec rails runner /usr/src/redmine/init/enable_api.rb;
+      bundle exec rails runner /usr/src/redmine/init/set_admin_password.rb;
+      bundle exec rails runner /usr/src/redmine/init/create_user_john.rb;
+      bundle exec rails runner /usr/src/redmine/init/create_project_with_critical.rb;
+      wait
+      "
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: redmine
+    networks:
+      - redmineDB_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    depends_on:
+      - redmine
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./nginx:/etc/nginx/conf.d:ro
+    networks:
+      - redmine_net
 version: '3.9'
 
 services:
