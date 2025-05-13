@@ -139,7 +139,7 @@ app.MapPost("/api/token", async (TokenRequest request, IConnectionMultiplexer re
 });
 
 // Token validieren + Redis check
-app.MapGet("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] async (HttpContext http, IConnectionMultiplexer redis, ClaimsPrincipal user) =>
+app.MapPost("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] async (HttpContext http, IConnectionMultiplexer redis, ClaimsPrincipal user) =>
 {
     var authHeader = http.Request.Headers["Authorization"].ToString();
     if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
@@ -170,6 +170,31 @@ app.MapGet("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] async
         role,
         customerId
     });
+});
+// 🔓 Token löschen (Logout) – abgesichert mit [Authorize]
+app.MapPost("/api/logout", [Microsoft.AspNetCore.Authorization.Authorize] async (
+    HttpContext http,
+    IConnectionMultiplexer redis,
+    ClaimsPrincipal user) =>
+{
+    var authHeader = http.Request.Headers["Authorization"].ToString();
+    if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+        return Results.BadRequest("Kein oder ungültiger Authorization-Header.");
+
+    var token = authHeader.Replace("Bearer ", "");
+    var db = redis.GetDatabase();
+    var deleted = await db.KeyDeleteAsync($"token:{token}");
+
+    Console.WriteLine(deleted
+        ? $"🧹 Token gelöscht: token:{token}"
+        : $"⚠️ Token war nicht vorhanden: token:{token}");
+
+    // Optional: logge auch den Benutzername oder Role aus dem Token
+    var username = user.FindFirst("username")?.Value ?? "unknown";
+    var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "unknown";
+    Console.WriteLine($"👤 Logout: user={username}, role={role}");
+
+    return Results.Ok(new { success = deleted });
 });
 
 app.Run();

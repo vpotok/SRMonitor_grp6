@@ -1,47 +1,76 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SRMCore.Data;
-using SRMCore.Services;
 using SRMCore.Models;
+using SRMCore.Services;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔧 Konfiguration laden
+// 🔑 JWT-Konfiguration
+var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new Exception("JWT-Key fehlt in der Konfiguration.");
+var key = Encoding.ASCII.GetBytes(jwtKey);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateLifetime = true,
+        RoleClaimType = ClaimTypes.Role
+    };
+});
+
+builder.Services.AddAuthorization();
+
+// 📦 Services und DB
 builder.Services.AddDbContext<CoreDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 🔌 Dependency Injection (Business-Logik)
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAgentAuthService, AgentAuthService>();
 builder.Services.AddScoped<IAlarmService, AlarmService>();
 builder.Services.AddScoped<RedmineService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokenValidationService, TokenValidationService>();
-builder.Services.AddHttpClient(); // für externe API-Aufrufe (z. B. Redmine)
+builder.Services.AddHttpClient();
 
-// 🌐 CORS (für Frontend-Zugriffe)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
-// 📦 Controller & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// 🧭 Middleware-Reihenfolge
+// 🔧 Middleware
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseAuthentication(); // ⬅️ Wichtig: vor UseAuthorization
 app.UseAuthorization();
+
 app.MapControllers();
 
-// 🗃️ Datenbankmigration & Initialdaten
+// 🗃️ DB-Migration + Seed
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CoreDbContext>();

@@ -1,6 +1,9 @@
+version: '3.9'
+
 networks:
   redmine_net:
   redmineDB_net:
+  srm-network:
 
 services:
 
@@ -11,11 +14,13 @@ services:
       - redmine_net
       - redmineDB_net
     environment:
-      REDMINE_DB_MYSQL: db
+      REDMINE_DB_MYSQL: redmine-db
       REDMINE_DB_PASSWORD: ${REDMINE_DB_PASSWORD}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: redmine
     depends_on:
-      - db
+      - redmine-db
     volumes:
       - ./redmine-init-scripts:/usr/src/redmine/init
     command: >
@@ -29,8 +34,10 @@ services:
       bundle exec rails runner /usr/src/redmine/init/create_project_with_critical.rb;
       wait
       "
+      
 
-  db:
+
+  redmine-db:
     image: mysql:8.0
     restart: always
     environment:
@@ -51,9 +58,7 @@ services:
       - ./nginx:/etc/nginx/conf.d:ro
     networks:
       - redmine_net
-version: '3.9'
 
-services:
   token-service:
     build: ../SRMAuth
     ports:
@@ -70,7 +75,7 @@ services:
     depends_on:
       - redis
       - token-service
-      - db
+      - srm-db
     networks:
       - srm-network
 
@@ -81,7 +86,7 @@ services:
     networks:
       - srm-network
 
-  db:  # <-- richtig eingerückt!
+  srm-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: srm-db
     environment:
@@ -91,7 +96,3 @@ services:
       - "1433:1433"
     networks:
       - srm-network
-
-networks:
-  srm-network:
-    driver: bridge
