@@ -1,6 +1,4 @@
-namespace SRMCore.Services;
-
 public interface IRedmineService
 {
-    Task CreateTicketAsync(string subject, string description);
+    Task CreateTicketAsync(int comId, string subject, string description);
 }

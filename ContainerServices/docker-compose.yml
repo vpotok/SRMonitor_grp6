@@ -13,38 +13,39 @@ services:
     networks:
       - redmine_net
       - redmineDB_net
+      - srm-network
     environment:
       REDMINE_DB_MYSQL: redmine-db
-      REDMINE_DB_PASSWORD: ${REDMINE_DB_PASSWORD}
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      MYSQL_ROOT_PASSWORD: rootpass123
-      MYSQL_DATABASE: redmine
+      REDMINE_DB_DATABASE: redmine
+      REDMINE_DB_USERNAME: redmine
+      REDMINE_DB_PASSWORD: Securepwd123!
     depends_on:
       - redmine-db
-    volumes:
-      - ./redmine-init-scripts:/usr/src/redmine/init
+    ports:
+      - "3000:3000"
     command: >
       bash -c "
-      /docker-entrypoint.sh rails server -b 0.0.0.0 &
       echo '⏳ Waiting for Redmine to initialize...';
       sleep 30;
-      bundle exec rails runner /usr/src/redmine/init/enable_api.rb;
-      bundle exec rails runner /usr/src/redmine/init/set_admin_password.rb;
-      bundle exec rails runner /usr/src/redmine/init/create_user_john.rb;
-      bundle exec rails runner /usr/src/redmine/init/create_project_with_critical.rb;
-      wait
+      /docker-entrypoint.sh rails server -b 0.0.0.0;
       "
-      
 
 
   redmine-db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: redmine
+      MYSQL_USER: redmine
+      MYSQL_PASSWORD: Securepwd123!
     networks:
       - redmineDB_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-predmine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nginx:
     image: nginx:alpine
@@ -78,6 +79,7 @@ services:
       - srm-db
     networks:
       - srm-network
+      - redmine_net
 
   redis:
     image: redis:7-alpine

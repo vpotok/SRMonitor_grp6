@@ -151,26 +151,27 @@ app.MapPost("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] asyn
     var token = authHeader.Replace("Bearer ", "");
     var db = redis.GetDatabase();
     var exists = await db.KeyExistsAsync($"token:{token}");
+
     Console.WriteLine(exists ? "✅ Token in Redis gefunden." : "❌ Token nicht in Redis vorhanden.");
     if (!exists)
         return Results.Unauthorized();
 
-    var userId = user.FindFirst("user_id")?.Value;
     var role = user.FindFirst(ClaimTypes.Role)?.Value;
     var customerId = user.FindFirst("customer_id")?.Value;
 
-    Console.WriteLine($"🔍 Claims: user_id={userId}, role={role}, customer_id={customerId}");
+    Console.WriteLine($"🔍 Claims: role={role}, customer_id={customerId}");
 
-    if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(role) || string.IsNullOrEmpty(customerId))
+    if (string.IsNullOrEmpty(role) || string.IsNullOrEmpty(customerId))
         return Results.Unauthorized();
 
     return Results.Ok(new
     {
-        userId,
+        valid = true,
         role,
-        customerId
+        customerId = int.Parse(customerId)
     });
 });
+
 // 🔓 Token löschen (Logout) – abgesichert mit [Authorize]
 app.MapPost("/api/logout", [Microsoft.AspNetCore.Authorization.Authorize] async (
     HttpContext http,

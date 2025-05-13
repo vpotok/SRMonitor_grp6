@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 // 🔑 JWT-Konfiguration
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new Exception("JWT-Key fehlt in der Konfiguration.");
 var key = Encoding.ASCII.GetBytes(jwtKey);
+
+// Add logging service
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole(); // Fügt Konsolenlogging hinzu
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -37,7 +44,9 @@ builder.Services.AddAuthorization();
 
 // 📦 Services und DB
 builder.Services.AddDbContext<CoreDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAgentAuthService, AgentAuthService>();
@@ -65,8 +74,17 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-app.UseAuthentication(); // ⬅️ Wichtig: vor UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Logging der Anfragen
+app.Use(async (context, next) =>
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>(); // Logger verwenden
+    logger.LogInformation("Handling request: {RequestMethod} {RequestPath}", context.Request.Method, context.Request.Path);
+    await next.Invoke();
+    logger.LogInformation("Finished request: {RequestMethod} {RequestPath}", context.Request.Method, context.Request.Path);
+});
 
 app.MapControllers();
 
@@ -74,8 +92,19 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        db.Database.Migrate();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>(); // Logger verwenden
+        logger.LogInformation("Database migration completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>(); // Logger verwenden
+        logger.LogError(ex, "An error occurred during database migration.");
+    }
 
+    // Führe Seeding durch
     if (!db.Companies.Any())
     {
         var companyA = new Company { ComName = "AlphaTech" };
@@ -113,6 +142,26 @@ using (var scope = app.Services.CreateScope())
                 ComId = companyB.ComId
             }
         );
+        db.SaveChanges();
+    }
+    if (!db.Redmines.Any())
+    {
+        db.Redmines.Add(new Redmine
+        {
+            ComId = 1, // AlphaTech
+            ApiKey = "4b2b0305ff9fc0c5549ef960310e2d5b0646ec57"
+        });
+        db.SaveChanges();
+    }
+
+    if (!db.Agents.Any())
+    {
+        db.Agents.Add(new Agent
+        {
+            AuthToken = "abc123",
+            ComId = 1, // AlphaTech
+            Enabled = true
+        });
 
         db.SaveChanges();
     }
