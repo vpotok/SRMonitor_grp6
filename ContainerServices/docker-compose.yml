@@ -80,6 +80,17 @@ services:
     networks:
       - srm-network
       - redmine_net
+  web-service:
+    build: ../SRMApp
+    container_name: srmapp
+    ports:
+      - "5173:80" # Change to your production port if needed
+    networks:
+      - srm-network
+    depends_on:
+      - core-service
+      - token-service
+
 
   redis:
     image: redis:7-alpine

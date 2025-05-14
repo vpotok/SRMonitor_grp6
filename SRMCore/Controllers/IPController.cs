@@ -30,15 +30,15 @@ public class IPController : ControllerBase
         var authHeader = Request.Headers.Authorization.FirstOrDefault();
         _logger.LogDebug("Authorization Header: {Header}", authHeader);
 
-        if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+        var cookieToken = Request.Cookies["jwt"];
+        if (!string.IsNullOrWhiteSpace(cookieToken))
         {
-            _logger.LogWarning("Kein gültiger Authorization Header vorhanden.");
-            return null;
+            _logger.LogDebug("JWT extrahiert aus Cookie: {Token}", cookieToken);
+            return cookieToken;
         }
 
-        var token = authHeader["Bearer ".Length..].Trim();
-        _logger.LogDebug("JWT extrahiert: {Token}", token);
-        return token;
+        _logger.LogWarning("Kein gültiger Authorization Header oder Cookie vorhanden.");
+        return null;
     }
 
     [HttpGet]

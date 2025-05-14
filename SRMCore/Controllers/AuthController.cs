@@ -34,8 +34,8 @@ public class AuthController : ControllerBase
         Response.Cookies.Append("jwt", token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -43,51 +43,51 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("role")]
-public async Task<IActionResult> GetRole([FromServices] IConfiguration config, [FromServices] IHttpClientFactory httpClientFactory)
-{
-    // 1. Token extrahieren
-    var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-    if (string.IsNullOrEmpty(token))
+    public async Task<IActionResult> GetRole([FromServices] IConfiguration config, [FromServices] IHttpClientFactory httpClientFactory)
     {
-        token = Request.Cookies["jwt"];
-    }
-
-    if (string.IsNullOrEmpty(token))
-        return Unauthorized("Kein Token vorhanden.");
-
-    // 2. Anfrage an Token-Service vorbereiten
-    var httpClient = httpClientFactory.CreateClient();
-    var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{config["TokenService:BaseUrl"]}/api/validate");
-    httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    httpRequest.Content = new StringContent("{}", Encoding.UTF8, "application/json");
-
-    try
-    {
-        var response = await httpClient.SendAsync(httpRequest);
-
-        Console.WriteLine($"📥 TOKEN-VALIDIERUNG: StatusCode = {response.StatusCode}");
-        var rawResponse = await response.Content.ReadAsStringAsync();
-        Console.WriteLine($"📦 TOKEN-RESPONSE: {rawResponse}");
-
-        if (!response.IsSuccessStatusCode)
+        // 1. Token extrahieren
+        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        if (string.IsNullOrEmpty(token))
         {
-            return Unauthorized("Token ungültig.");
+            token = Request.Cookies["jwt"];
         }
 
-        var result = JsonConvert.DeserializeObject<TokenValidationResponse>(rawResponse);
+        if (string.IsNullOrEmpty(token))
+            return Unauthorized("Kein Token vorhanden.");
 
-        return Ok(new
+        // 2. Anfrage an Token-Service vorbereiten
+        var httpClient = httpClientFactory.CreateClient();
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{config["TokenService:BaseUrl"]}/api/validate");
+        httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        httpRequest.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+        try
         {
-            role = result?.Role
-        });
+            var response = await httpClient.SendAsync(httpRequest);
 
+            Console.WriteLine($"📥 TOKEN-VALIDIERUNG: StatusCode = {response.StatusCode}");
+            var rawResponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"📦 TOKEN-RESPONSE: {rawResponse}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Unauthorized("Token ungültig.");
+            }
+
+            var result = JsonConvert.DeserializeObject<TokenValidationResponse>(rawResponse);
+
+            return Ok(new
+            {
+                role = result?.Role
+            });
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Fehler beim Token-Service: {ex.Message}");
+            return StatusCode(500, "Fehler bei der Tokenvalidierung.");
+        }
     }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"❌ Fehler beim Token-Service: {ex.Message}");
-        return StatusCode(500, "Fehler bei der Tokenvalidierung.");
-    }
-}
 
     [Authorize]
     [HttpPost("logout")]
