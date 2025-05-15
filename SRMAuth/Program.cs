@@ -6,20 +6,42 @@ using SRMAuth.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Konfiguration laden
-var configuration = builder.Configuration;
-var jwtKey = configuration["Jwt:Key"] ?? throw new Exception("JWT-Key fehlt in der Konfiguration.");
-var redisConnection = configuration.GetSection("Redis")["ConnectionString"] ?? "redis:6379";
+// 🔧 Lade .env aus absolutem Pfad (für Docker) oder lokal (für VS)
+var envPath = "/app/ContainerServices/.env";
+if (!File.Exists(envPath))
+{
+    envPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, "ContainerServices", ".env");
+}
+Console.WriteLine($"📄 Lade .env-Datei aus: {envPath}");
+Env.Load(envPath);
+
+// 🔍 Environment-Variablen validieren
+string RequireEnv(string key)
+{
+    var value = Environment.GetEnvironmentVariable(key);
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        Console.WriteLine($"❌ ENV {key} fehlt oder ist leer.");
+        throw new Exception($"{key} fehlt");
+    }
+    Console.WriteLine($"✅ ENV {key} geladen.");
+    return value;
+}
+
+// 📦 Konfiguration lesen
+var jwtKey = RequireEnv("JWT_KEY");
+var redisConnection = RequireEnv("REDIS_CONNECTION");
 var key = Encoding.ASCII.GetBytes(jwtKey);
 
+// 🔐 Authentifizierung konfigurieren
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
@@ -40,32 +62,32 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Conn
 
 var app = builder.Build();
 
-// 🔐 SuperAdmin beim Start setzen
-var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
-var db = redis.GetDatabase();
-
-var superAdminUsername = configuration["SuperAdmin:Username"] ?? "superadmin";
-var superAdminPassword = configuration["SuperAdmin:Password"] ?? "supersecret123";
-var superAdminRole = configuration["SuperAdmin:Role"] ?? "SuperAdmin";
-
-var superAdminKey = $"user:{superAdminUsername}";
-var superAdminHash = new HashEntry[]
-{
-    new("username", superAdminUsername),
-    new("password", superAdminPassword),
-    new("role", superAdminRole)
-};
-await db.HashSetAsync(superAdminKey, superAdminHash);
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 🔐 Login
+// 🛡️ SuperAdmin initialisieren
+{
+    var redis = app.Services.GetRequiredService<IConnectionMultiplexer>();
+    var db = redis.GetDatabase();
+    var superAdminKey = "user:superadmin";
+    if (!await db.KeyExistsAsync(superAdminKey))
+    {
+        Console.WriteLine("🛠️ Superadmin-User wird initialisiert...");
+        await db.HashSetAsync(superAdminKey, new HashEntry[]
+        {
+            new("username", "superadmin"),
+            new("password", "supersecret123"),
+            new("role", "SuperAdmin")
+        });
+        Console.WriteLine("✅ Superadmin erstellt.");
+    }
+}
+
+// 🔑 Login
 app.MapPost("/auth/login", async (HttpContext http, IConnectionMultiplexer redis, LoginRequest login) =>
 {
     var db = redis.GetDatabase();
     var user = await db.HashGetAllAsync($"user:{login.Username}");
-
     if (user.Length == 0 || user.FirstOrDefault(e => e.Name == "password").Value != login.Password)
         return Results.Unauthorized();
 
@@ -82,36 +104,32 @@ app.MapPost("/auth/login", async (HttpContext http, IConnectionMultiplexer redis
         Expires = DateTime.UtcNow.AddHours(1),
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
     };
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-    var jwt = tokenHandler.WriteToken(token);
-
+    var jwt = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
     return Results.Ok(new { token = jwt });
 });
 
-// ➕ Benutzer registrieren (nur für SuperAdmin erlaubt)
-app.MapPost("/auth/register", [Microsoft.AspNetCore.Authorization.Authorize(Roles = "SuperAdmin")] async (HttpContext http, IConnectionMultiplexer redis, RegisterRequest request) =>
+// ➕ Registrierung
+app.MapPost("/auth/register", [Microsoft.AspNetCore.Authorization.Authorize(Roles = "SuperAdmin")] async (
+    HttpContext http,
+    IConnectionMultiplexer redis,
+    RegisterRequest request) =>
 {
-    if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.Role))
-        return Results.BadRequest("Username, Password und Role müssen angegeben werden.");
-
     var db = redis.GetDatabase();
     var key = $"user:{request.Username}";
-
     if (await db.KeyExistsAsync(key))
         return Results.Conflict("Benutzer existiert bereits.");
 
-    var hash = new HashEntry[]
+    await db.HashSetAsync(key, new HashEntry[]
     {
         new("username", request.Username),
         new("password", request.Password),
         new("role", request.Role)
-    };
+    });
 
-    await db.HashSetAsync(key, hash);
     return Results.Ok("Benutzer erfolgreich registriert.");
 });
 
-// Token erstellen + in Redis speichern
+// 🔐 Token generieren
 app.MapPost("/api/token", async (TokenRequest request, IConnectionMultiplexer redis) =>
 {
     var tokenHandler = new JwtSecurityTokenHandler();
@@ -123,77 +141,49 @@ app.MapPost("/api/token", async (TokenRequest request, IConnectionMultiplexer re
             new Claim("customer_id", request.CustomerId.ToString()),
             new Claim(ClaimTypes.Role, request.Role ?? "unknown")
         }),
-        NotBefore = DateTime.UtcNow.AddSeconds(-5),
         Expires = DateTime.UtcNow.AddHours(1),
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
     };
 
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-    var jwt = tokenHandler.WriteToken(token);
+    var jwt = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
 
     var db = redis.GetDatabase();
     await db.StringSetAsync($"token:{jwt}", "valid", TimeSpan.FromHours(1));
     Console.WriteLine($"🔐 Token gespeichert in Redis: token:{jwt}");
-
     return Results.Ok(new { token = jwt });
 });
 
-// Token validieren + Redis check
+// ✅ Token validieren
 app.MapPost("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] async (HttpContext http, IConnectionMultiplexer redis, ClaimsPrincipal user) =>
 {
-    var authHeader = http.Request.Headers["Authorization"].ToString();
-    if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-    {
-        Console.WriteLine("❌ Kein Authorization-Header oder falsches Format.");
-        return Results.Unauthorized();
-    }
-
-    var token = authHeader.Replace("Bearer ", "");
+    var token = http.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
     var db = redis.GetDatabase();
-    var exists = await db.KeyExistsAsync($"token:{token}");
 
-    Console.WriteLine(exists ? "✅ Token in Redis gefunden." : "❌ Token nicht in Redis vorhanden.");
-    if (!exists)
+    if (!await db.KeyExistsAsync($"token:{token}"))
         return Results.Unauthorized();
 
     var role = user.FindFirst(ClaimTypes.Role)?.Value;
     var customerId = user.FindFirst("customer_id")?.Value;
 
-    Console.WriteLine($"🔍 Claims: role={role}, customer_id={customerId}");
-
     if (string.IsNullOrEmpty(role) || string.IsNullOrEmpty(customerId))
         return Results.Unauthorized();
 
-    return Results.Ok(new
-    {
-        valid = true,
-        role,
-        customerId = int.Parse(customerId)
-    });
+    return Results.Ok(new { valid = true, role, customerId = int.Parse(customerId) });
 });
 
-// 🔓 Token löschen (Logout) – abgesichert mit [Authorize]
+// 🔓 Logout
 app.MapPost("/api/logout", [Microsoft.AspNetCore.Authorization.Authorize] async (
     HttpContext http,
     IConnectionMultiplexer redis,
     ClaimsPrincipal user) =>
 {
-    var authHeader = http.Request.Headers["Authorization"].ToString();
-    if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-        return Results.BadRequest("Kein oder ungültiger Authorization-Header.");
-
-    var token = authHeader.Replace("Bearer ", "");
+    var token = http.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
     var db = redis.GetDatabase();
     var deleted = await db.KeyDeleteAsync($"token:{token}");
 
-    Console.WriteLine(deleted
-        ? $"🧹 Token gelöscht: token:{token}"
-        : $"⚠️ Token war nicht vorhanden: token:{token}");
-
-    // Optional: logge auch den Benutzername oder Role aus dem Token
     var username = user.FindFirst("username")?.Value ?? "unknown";
     var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "unknown";
-    Console.WriteLine($"👤 Logout: user={username}, role={role}");
+    Console.WriteLine($"👤 Logout von {username} (Rolle: {role})");
 
     return Results.Ok(new { success = deleted });
 });

@@ -1,89 +1,74 @@
 import os
 import re
 
-EXCLUDED_DIRS = {'.git', 'node_modules', '.next', 'dist', '__pycache__'}
-TARGET_EXTENSIONS = {'.cs'}
-ENV_FILE = '.env'
+# Verzeichnisse, die durchsucht werden sollen
+project_root = r'C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg'  # Dein Projektpfad
+output_env_file = r'C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\.env'  # Ausgabe der .env-Datei
 
-HARD_CODED_PATTERNS = {
-    'URLs': r'http[s]?://[^\s"\']+',
-    'IP Addresss': r'\b(?:\d{1,3}\.){3}\d{1,3}\b',
-    'Ports': r'(?<![\w:])(?<!\d)(\d{2,5})(?!\d)(?!\s*(?:-|to|–|/)\s*\d+)',
-    'Passwords': r'(?i)\b(password|pwd|pass|secret|token|auth)[\s:=]+[\'"]?[^\'"\s]+[\'"]?',
-    'Token Keywords': r'(?i)\b(auth_token|access_token|Authorization|Bearer|token)\b',
-    'JWT Keywords': r'(?i)\bjwt\b',
-    'API Keys': r'(?i)\b(api[-_]?key)[\s:=]+[\'"]?[^\'"\s]+[\'"]?',
-    'Connection Strings': r'(?i)\b(Data Source|Server=|uid=|user=|Username=|LoginUser|connectionString)\b',
-    'Common Hosts': r'(?i)\blocalhost|127\.0\.0\.1|192\.168\.\d+\.\d+\b',
+
+# Regex-Pattern zum Extrahieren der relevanten Daten
+patterns = {
+    'URLs': r'(https?://[^\s]+)',
+    'Ports': r'\b(\d{2,5})\b',
+    'JWT Keywords': r'\b(jwt|JWT|Jwt)\b',
+    'Token Keywords': r'\b(token|Authorization|Bearer)\b',
+    'API Keys': r'\b(ApiKey)\b',
+    'Passwords': r'\b(password|Token)\b',
+    'IP Addresss': r'\b(\d{1,3}\.){3}\d{1,3}\b',
 }
 
-matches_summary = []
+# Funktionen, um Dateien zu durchsuchen und Daten zu extrahieren
+def extract_from_file(file_path, patterns):
+    found_data = {}
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            for key, pattern in patterns.items():
+                found_data[key] = set(re.findall(pattern, content))
+    except Exception as e:
+        print(f"Fehler beim Verarbeiten der Datei {file_path}: {e}")
+    return found_data
 
-def search_hardcoded_values(file_path):
-    """Durchsuche die Datei nach hardcodierten Werten."""
-    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-        content = f.readlines()
+def generate_env_file(project_root, output_env_file, patterns):
+    # Sammle alle relevanten Daten aus den Dateien
+    env_data = {}
 
-    file_matches = []
-    for label, pattern in HARD_CODED_PATTERNS.items():
-        for line_num, line in enumerate(content, start=1):
-            matches = re.findall(pattern, line)
-            if matches:
-                unique_matches = sorted(set(matches))
-                file_matches.append(f"  🔹 {label}s: {', '.join(unique_matches[:5])}" + (" ..." if len(unique_matches) > 5 else ""))
-                file_matches.append(f"    Zeile {line_num}: {line.strip()}")  # Füge die Zeile mit dem Treffer hinzu
+    for root, dirs, files in os.walk(project_root):
+        # Ignoriere bestimmte Verzeichnisse
+        if '.git' in dirs:
+            dirs.remove('.git')
+        if 'node_modules' in dirs:
+            dirs.remove('node_modules')
+        if '.next' in dirs:
+            dirs.remove('.next')
+        if 'dist' in dirs:
+            dirs.remove('dist')
+        if '__pycache__' in dirs:
+            dirs.remove('__pycache__')
 
-    if file_matches:
-        relative_path = os.path.relpath(file_path)
-        matches_summary.append(f"\n📄 Datei: {relative_path}")
-        matches_summary.extend(file_matches)
+        # Durchsuche alle .cs und .js/.tsx Dateien
+        for file in files:
+            if file.endswith(('.cs', '.js', '.tsx')):
+                file_path = os.path.join(root, file)
+                file_data = extract_from_file(file_path, patterns)
 
-def scan_project_for_hardcoded_values(root_dir):
-    """Scanne das Projektverzeichnis nach C#-Dateien."""
-    for dirpath, dirnames, filenames in os.walk(root_dir):
-        dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS]
-        for filename in filenames:
-            _, ext = os.path.splitext(filename)
-            if ext in TARGET_EXTENSIONS:
-                full_path = os.path.join(dirpath, filename)
-                search_hardcoded_values(full_path)
+                # Füge die gefundenen Daten zur Umgebungsvariablen-Liste hinzu
+                for key, values in file_data.items():
+                    if values:
+                        if key not in env_data:
+                            env_data[key] = set()
+                        env_data[key].update(values)
 
-def create_env_file():
-    """Erstelle die .env Datei und schreibe die gefundenen Variablen hinein."""
-    with open(ENV_FILE, 'w', encoding='utf-8') as env_file:
-        for label, pattern in HARD_CODED_PATTERNS.items():
-            found_values = set()
-            for file in matches_summary:
-                matches = re.findall(pattern, file)
-                found_values.update(matches)
-            for value in found_values:
-                env_file.write(f'{label.upper().replace(" ", "_")}_{label}: {value}\n')
+    # Schreibe die Daten in die .env-Datei
+    with open(output_env_file, 'w', encoding='utf-8') as env_file:
+        for key, values in env_data.items():
+            if values:
+                env_file.write(f'# {key}\n')
+                for value in values:
+                    env_file.write(f'{key.upper()}={value}\n')
+                env_file.write('\n')
 
-def update_code_with_env():
-    """Aktualisiere den Code, um Umgebungsvariablen zu verwenden."""
-    # Extrahiere nur die Dateipfade aus matches_summary
-    file_paths = [line.split(":")[1].strip() for line in matches_summary if line.startswith("📄 Datei")]
+    print(f".env-Datei wurde erstellt: {output_env_file}")
 
-    for file in file_paths:
-        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
-
-        for label in HARD_CODED_PATTERNS.keys():
-            pattern = re.escape(label)
-            content = re.sub(pattern, f"Environment.GetEnvironmentVariable('{label.upper().replace(' ', '_')}_{label}')", content)
-
-        with open(file, 'w', encoding='utf-8') as f:
-            f.write(content)
-
-if __name__ == "__main__":
-    current_dir = os.getcwd()
-    print(f"🚀 Durchsuche Projekt unter: {current_dir}")
-    scan_project_for_hardcoded_values(current_dir)
-
-    # Erstelle die .env Datei
-    create_env_file()
-    print(f"✅ Ergebnisse gespeichert in '{ENV_FILE}'")
-
-    # Aktualisiere den Code, um Umgebungsvariablen zu verwenden
-    update_code_with_env()
-    print("✅ Code wurde aktualisiert.")
+# Skript ausführen
+generate_env_file(project_root, output_env_file, patterns)

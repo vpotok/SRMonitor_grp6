@@ -141,8 +141,8 @@
   🔹 Variables: AgentId, CurrentBattery, CurrentTemp, CustomerId, CustomerName, DoorOpen, ShellyId, bool, float, string
 
 📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Program.cs
-  🔹 Methods: GenerateSecureToken, catch, foreach, if
-  🔹 Variables: GenerateSecureToken, agent, agents, app, builder, companyA, companyB, const, currentApiKey, db, existing, int, jwtKey, key, length, logger, random, scope, string, var
+  🔹 Methods: GenerateSecureToken, catch, when
+  🔹 Variables: GenerateSecureToken, agentA, agentB, apiKey, app, builder, companyA, companyB, conn, const, db, existing, int, jwtKey, key, length, logger, rnd, scope, string, var
 
 📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Controllers\AuthController.cs
   🔹 Classs: A, C, e, h, l, n, o, r, t, u
