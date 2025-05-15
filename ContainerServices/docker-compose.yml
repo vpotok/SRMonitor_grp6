@@ -1,0 +1,110 @@
+networks:
+  redmine_net:
+  redmineDB_net:
+  srm-network:
+
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    ports:
+      - 3000:3000
+    #das neu
+    networks:
+      - redmine_net
+      - redmineDB_net
+      - srm-network
+    environment:
+      REDMINE_DB_MYSQL: db
+      REDMINE_DB_PASSWORD: ${REDMINE_DB_PASSWORD}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+    depends_on:
+      - db
+    volumes:
+      - ./redmine-init-scripts:/usr/src/redmine/init
+    command: >
+      bash -c "
+      /docker-entrypoint.sh rails server -b 0.0.0.0 &
+      echo '⏳ Waiting for Redmine to initialize...';
+      sleep 30;
+      bundle exec rails runner /usr/src/redmine/init/enable_api.rb;
+      bundle exec rails runner /usr/src/redmine/init/set_admin_password.rb;
+      bundle exec rails runner /usr/src/redmine/init/create_user_company.rb;
+      bundle exec rails runner /usr/src/redmine/init/create_project_with_critical.rb;
+      wait
+      "
+
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: redmine
+    #das neu
+    networks:
+      - redmineDB_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    depends_on:
+      - redmine
+    ports:
+      - "443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./nginx:/etc/nginx/conf.d:ro
+    networks:
+      - redmine_net
+
+  token-service:
+    build: ../SRMAuth
+    ports:
+      - "5000:8080"
+    depends_on:
+      - redis
+    networks:
+      - srm-network
+
+  core-service:
+    build: ../SRMCore
+    ports:
+      - "5001:8080"
+    depends_on:
+      - redis
+      - token-service
+      - srm-db
+    networks:
+      - srm-network
+      - redmine_net
+  web-service:
+    build: ../SRMApp
+    container_name: srmapp
+    ports:
+      - "5173:80" # Change to your production port if needed
+    networks:
+      - srm-network
+    depends_on:
+      - core-service
+      - token-service
+
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - srm-network
+
+  srm-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: srm-db
+    environment:
+      SA_PASSWORD: "SuperSicher123!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - srm-network
