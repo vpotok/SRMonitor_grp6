@@ -1,0 +1,14 @@
+
+📄 Datei: SRMApp\src\services\authService.js
+  🔹 URLs: http://localhost:5001
+    Zeile 4: const API_BASE_URL = 'http://localhost:5001'
+  🔹 Passwords: token
+    Zeile 6: // Login user and set the token in the cookie (already handled by the backend)
+  🔹 Token Keywords: token
+    Zeile 6: // Login user and set the token in the cookie (already handled by the backend)
+  🔹 Connection Stringss: loginUser
+    Zeile 7: export async function loginUser(credentials) {
+
+📄 Datei: SRMApp\src\services\pingService.js
+  🔹 URLs: http://localhost:5001/api/IP
+    Zeile 3: const API_BASE_URL = 'http://localhost:5001/api/IP'
