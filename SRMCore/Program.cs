@@ -55,12 +55,15 @@ builder.Services.AddScoped<RedmineService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokenValidationService, TokenValidationService>();
 builder.Services.AddHttpClient();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials());
 });
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -108,12 +111,24 @@ using (var scope = app.Services.CreateScope())
     }
 
 
-    if (!db.Companies.Any())
+    if (db.Companies.Any())
     {
-        var companyA = new Company { ComName = "AlphaTech" };
-        var companyB = new Company { ComName = "BetaCorp" };
-        db.Companies.AddRange(companyA, companyB);
-        db.SaveChanges();
+        var companyA = db.Companies.FirstOrDefault(c => c.ComName == "AlphaTech");
+if (companyA == null)
+{
+    companyA = new Company { ComName = "AlphaTech" };
+    db.Companies.Add(companyA);
+}
+
+var companyB = db.Companies.FirstOrDefault(c => c.ComName == "BetaCorp");
+if (companyB == null)
+{
+    companyB = new Company { ComName = "BetaCorp" };
+    db.Companies.Add(companyB);
+}
+
+db.SaveChanges();
+
 
         db.Users.AddRange(
             new User
@@ -148,15 +163,28 @@ using (var scope = app.Services.CreateScope())
         db.SaveChanges();
     }
 
-    if (!db.Redmines.Any())
-    {
-        db.Redmines.Add(new Redmine
-        {
-            ComId = 1,
-            ApiKey = "4b2b0305ff9fc0c5549ef960310e2d5b0646ec57"
-        });
-        db.SaveChanges();
-    }
+   // 🔄 Redmine-API-Key automatisch setzen/überschreiben
+var currentApiKey = builder.Configuration["Redmine:ApiKey"];
+if (string.IsNullOrEmpty(currentApiKey))
+{
+    throw new Exception("Redmine API-Key fehlt in der Konfiguration (Redmine:ApiKey)");
+}
+
+var existing = db.Redmines.FirstOrDefault(r => r.ComId == 1);
+if (existing != null)
+{
+    db.Redmines.Remove(existing);
+    db.SaveChanges(); // notwendig um den alten Key zu entfernen
+}
+
+db.Redmines.Add(new Redmine
+{
+    ComId = 1,
+    ApiKey = currentApiKey
+});
+db.SaveChanges();
+
+
 
     if (!db.Agents.Any())
     {

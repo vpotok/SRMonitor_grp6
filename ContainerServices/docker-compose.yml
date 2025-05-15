@@ -1,3 +1,5 @@
+version: '3.9'
+
 networks:
   redmine_net:
   redmineDB_net:
@@ -9,8 +11,7 @@ services:
     image: redmine
     restart: always
     ports:
-      - 3000:3000
-    #das neu
+      - "3000:3000"
     networks:
       - redmine_net
       - redmineDB_net
@@ -35,14 +36,12 @@ services:
       wait
       "
 
-
   db:
     image: mysql:8.0
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: redmine
-    #das neu
     networks:
       - redmineDB_net
 
@@ -59,38 +58,6 @@ services:
     networks:
       - redmine_net
 
-  token-service:
-    build: ../SRMAuth
-    ports:
-      - "5000:8080"
-    depends_on:
-      - redis
-    networks:
-      - srm-network
-
-  core-service:
-    build: ../SRMCore
-    ports:
-      - "5001:8080"
-    depends_on:
-      - redis
-      - token-service
-      - srm-db
-    networks:
-      - srm-network
-      - redmine_net
-  web-service:
-    build: ../SRMApp
-    container_name: srmapp
-    ports:
-      - "5173:80" # Change to your production port if needed
-    networks:
-      - srm-network
-    depends_on:
-      - core-service
-      - token-service
-
-
   redis:
     image: redis:7-alpine
     ports:
@@ -106,5 +73,39 @@ services:
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
+    networks:
+      - srm-network
+
+  token-service:
+    build: ../SRMAuth
+    ports:
+      - "5000:8080"
+    depends_on:
+      - redis
+    networks:
+      - srm-network
+
+  core-service:
+    build: ../SRMCore
+    ports:
+      - "5001:8080"
+    environment:
+      Redmine__ApiKey: ${REDMINE_API_KEY}  # 🔑 Dynamisch per .env oder export
+    depends_on:
+      - redis
+      - token-service
+      - srm-db
+    networks:
+      - srm-network
+      - redmine_net
+
+  web-service:
+    build: ../SRMApp
+    container_name: srmapp
+    ports:
+      - "5173:80"
+    depends_on:
+      - core-service
+      - token-service
     networks:
       - srm-network

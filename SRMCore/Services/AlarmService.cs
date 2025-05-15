@@ -33,10 +33,10 @@ public class AlarmService : IAlarmService
             return;
         }
 
-        var subject = "🚨 ALARM: Serverraumzustand kritisch";
+        var subject = "ALARM: Serverraumzustand kritisch";
         var description = string.Join("\\n", messages);
 
-        _logger.LogInformation("⚠️ Alarmbedingungen erfüllt – Trigger Redmine für ComId={ComId}", comId);
+        _logger.LogInformation("Alarmbedingungen erfüllt – Trigger Redmine für ComId={ComId}", comId);
         await _redmine.CreateTicketAsync(comId, subject, description);
     }
 }
