@@ -111,25 +111,23 @@ using (var scope = app.Services.CreateScope())
     }
 
 
-    if (db.Companies.Any())
+    if (!db.Companies.Any())
     {
         var companyA = db.Companies.FirstOrDefault(c => c.ComName == "AlphaTech");
-if (companyA == null)
-{
-    companyA = new Company { ComName = "AlphaTech" };
-    db.Companies.Add(companyA);
-}
+        if (companyA == null)
+        {
+            companyA = new Company { ComName = "AlphaTech" };
+            db.Companies.Add(companyA);
+        }
 
-var companyB = db.Companies.FirstOrDefault(c => c.ComName == "BetaCorp");
-if (companyB == null)
-{
-    companyB = new Company { ComName = "BetaCorp" };
-    db.Companies.Add(companyB);
-}
+        var companyB = db.Companies.FirstOrDefault(c => c.ComName == "BetaCorp");
+        if (companyB == null)
+        {
+            companyB = new Company { ComName = "BetaCorp" };
+            db.Companies.Add(companyB);
+        }
 
-db.SaveChanges();
-
-
+        db.SaveChanges();
         db.Users.AddRange(
             new User
             {
@@ -161,6 +159,7 @@ db.SaveChanges();
             }
         );
         db.SaveChanges();
+            
     }
 
    // 🔄 Redmine-API-Key automatisch setzen/überschreiben
