@@ -173,6 +173,6 @@ public class IPController : ControllerBase
             .ToListAsync();
 
         _logger.LogInformation("📤 {Count} IPs gefunden für Agent mit ComId={ComId}", ips.Count, comId);
-        return Ok(ips);
+        return Ok(new { ips });
     }
 }
