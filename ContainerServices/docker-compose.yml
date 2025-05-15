@@ -99,6 +99,7 @@ services:
       Redmine__ApiKey: ${REDMINE_API_KEY}
       CORE_DB_CONNECTION: ${CORE_DB_CONNECTION}
     depends_on:
+      - redmine
       - redis
       - token-service
       - srm-db
