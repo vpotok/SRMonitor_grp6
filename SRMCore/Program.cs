@@ -111,11 +111,13 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITokenValidationService, TokenValidationService>();
 builder.Services.AddHttpClient();
 
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAll", policy =>
-        policy.WithOrigins("http://localhost:5173")
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("http://localhost:5173") // frontend URL
+              .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowAnyHeader());
+              .AllowCredentials()); // erlaubt Cookies/Auth
 });
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -175,11 +177,19 @@ using (var scope = app.Services.CreateScope())
     // User
     if (!db.Users.Any())
     {
+                var adminPw = Environment.GetEnvironmentVariable("DEFAULT_ADMIN_PASSWORD");
+        var userPw = Environment.GetEnvironmentVariable("DEFAULT_USER_PASSWORD");
+
+        if (string.IsNullOrEmpty(adminPw) || string.IsNullOrEmpty(userPw))
+        {
+            throw new Exception("⚠️ Standardpasswörter nicht gesetzt. Bitte .env prüfen.");
+        }
+
         db.Users.AddRange(
-            new User { UserName = "alpha_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), Role = "customeradmin", ComId = companyA.ComId },
-            new User { UserName = "alpha_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"), Role = "customer", ComId = companyA.ComId },
-            new User { UserName = "beta_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), Role = "customeradmin", ComId = companyB.ComId },
-            new User { UserName = "beta_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"), Role = "customer", ComId = companyB.ComId }
+            new User { UserName = "alpha_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPw), Role = "customeradmin", ComId = companyA.ComId },
+            new User { UserName = "alpha_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword(userPw), Role = "customer", ComId = companyA.ComId },
+            new User { UserName = "beta_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPw), Role = "customeradmin", ComId = companyB.ComId },
+            new User { UserName = "beta_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword(userPw), Role = "customer", ComId = companyB.ComId }
         );
         db.SaveChanges();
         logger.LogInformation("✅ Benutzer gespeichert.");
