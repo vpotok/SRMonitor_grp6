@@ -1,0 +1,548 @@
+
+📄 Datei: SRMAgent\Program.cs
+  🔹 URLs: https://aka.ms/aspnetcore/swashbuckle
+    Zeile 13: // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+📄 Datei: SRMAgent\WorkerService.cs
+  🔹 Ports: 10, 1000
+    Zeile 5: private const int generalDelay = 1 * 10 * 1000; // 10 seconds
+
+📄 Datei: SRMAgent\Controllers\AgentDataController.cs
+  🔹 Ports: 90
+    Zeile 14: CurrentBattery = 90,
+  🔹 Ports: 24
+    Zeile 15: CurrentTemp = 24,
+  🔹 Ports: 10, 30
+    Zeile 27: demoData.CurrentTemp = new Random().Next(10, 30);
+
+📄 Datei: SRMAgent\obj\Debug\net8.0\SRMAgent.AssemblyInfo.cs
+  🔹 IP Addresss: 1.0.0.0
+    Zeile 15: [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+  🔹 IP Addresss: 1.0.0.0
+    Zeile 19: [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+  🔹 Ports: 436
+    Zeile 16: [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+436e9fb9c86348d63335d9731818f51d9ab16dec")]
+
+📄 Datei: SRMAuth\AuthData.cs
+  🔹 Passwords: Token
+    Zeile 4: public string Token { get; set; } = "";
+  🔹 Token Keywords: Token
+    Zeile 4: public string Token { get; set; } = "";
+
+📄 Datei: SRMAuth\Program.cs
+  🔹 Ports: 10
+    Zeile 33: ClockSkew = TimeSpan.FromSeconds(10),
+  🔹 Passwords: token
+    Zeile 85: var token = tokenHandler.CreateToken(tokenDescriptor);
+  🔹 Passwords: token
+    Zeile 88: return Results.Ok(new { token = jwt });
+  🔹 Passwords: Password
+    Zeile 95: return Results.BadRequest("Username, Password und Role müssen angegeben werden.");
+  🔹 Passwords: Token
+    Zeile 114: // Token erstellen + in Redis speichern
+  🔹 Passwords: token
+    Zeile 131: var token = tokenHandler.CreateToken(tokenDescriptor);
+  🔹 Passwords: token
+    Zeile 135: await db.StringSetAsync($"token:{jwt}", "valid", TimeSpan.FromHours(1));
+  🔹 Passwords: Token, token
+    Zeile 136: Console.WriteLine($"🔐 Token gespeichert in Redis: token:{jwt}");
+  🔹 Passwords: token
+    Zeile 138: return Results.Ok(new { token = jwt });
+  🔹 Passwords: Token
+    Zeile 141: // Token validieren + Redis check
+  🔹 Passwords: token
+    Zeile 151: var token = authHeader.Replace("Bearer ", "");
+  🔹 Passwords: token
+    Zeile 153: var exists = await db.KeyExistsAsync($"token:{token}");
+  🔹 Passwords: Token
+    Zeile 155: Console.WriteLine(exists ? "✅ Token in Redis gefunden." : "❌ Token nicht in Redis vorhanden.");
+  🔹 Passwords: Token
+    Zeile 175: // 🔓 Token löschen (Logout) – abgesichert mit [Authorize]
+  🔹 Passwords: token
+    Zeile 185: var token = authHeader.Replace("Bearer ", "");
+  🔹 Passwords: token
+    Zeile 187: var deleted = await db.KeyDeleteAsync($"token:{token}");
+  🔹 Passwords: Token, token
+    Zeile 190: ? $"🧹 Token gelöscht: token:{token}"
+  🔹 Passwords: Token, token
+    Zeile 191: : $"⚠️ Token war nicht vorhanden: token:{token}");
+  🔹 JWT Keywords: Jwt
+    Zeile 6: using System.IdentityModel.Tokens.Jwt;
+  🔹 JWT Keywords: JWT, Jwt
+    Zeile 14: var jwtKey = configuration["Jwt:Key"] ?? throw new Exception("JWT-Key fehlt in der Konfiguration.");
+  🔹 JWT Keywords: jwt
+    Zeile 86: var jwt = tokenHandler.WriteToken(token);
+  🔹 JWT Keywords: jwt
+    Zeile 88: return Results.Ok(new { token = jwt });
+  🔹 JWT Keywords: jwt
+    Zeile 132: var jwt = tokenHandler.WriteToken(token);
+  🔹 JWT Keywords: jwt
+    Zeile 135: await db.StringSetAsync($"token:{jwt}", "valid", TimeSpan.FromHours(1));
+  🔹 JWT Keywords: jwt
+    Zeile 136: Console.WriteLine($"🔐 Token gespeichert in Redis: token:{jwt}");
+  🔹 JWT Keywords: jwt
+    Zeile 138: return Results.Ok(new { token = jwt });
+  🔹 Token Keywords: token
+    Zeile 85: var token = tokenHandler.CreateToken(tokenDescriptor);
+  🔹 Token Keywords: token
+    Zeile 86: var jwt = tokenHandler.WriteToken(token);
+  🔹 Token Keywords: token
+    Zeile 88: return Results.Ok(new { token = jwt });
+  🔹 Token Keywords: Authorization
+    Zeile 92: app.MapPost("/auth/register", [Microsoft.AspNetCore.Authorization.Authorize(Roles = "SuperAdmin")] async (HttpContext http, IConnectionMultiplexer redis, RegisterRequest request) =>
+  🔹 Token Keywords: Token
+    Zeile 114: // Token erstellen + in Redis speichern
+  🔹 Token Keywords: token
+    Zeile 115: app.MapPost("/api/token", async (TokenRequest request, IConnectionMultiplexer redis) =>
+  🔹 Token Keywords: token
+    Zeile 131: var token = tokenHandler.CreateToken(tokenDescriptor);
+  🔹 Token Keywords: token
+    Zeile 132: var jwt = tokenHandler.WriteToken(token);
+  🔹 Token Keywords: token
+    Zeile 135: await db.StringSetAsync($"token:{jwt}", "valid", TimeSpan.FromHours(1));
+  🔹 Token Keywords: Token, token
+    Zeile 136: Console.WriteLine($"🔐 Token gespeichert in Redis: token:{jwt}");
+  🔹 Token Keywords: token
+    Zeile 138: return Results.Ok(new { token = jwt });
+  🔹 Token Keywords: Token
+    Zeile 141: // Token validieren + Redis check
+  🔹 Token Keywords: Authorization
+    Zeile 142: app.MapPost("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] async (HttpContext http, IConnectionMultiplexer redis, ClaimsPrincipal user) =>
+  🔹 Token Keywords: Authorization
+    Zeile 144: var authHeader = http.Request.Headers["Authorization"].ToString();
+  🔹 Token Keywords: Bearer
+    Zeile 145: if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+  🔹 Token Keywords: Authorization
+    Zeile 147: Console.WriteLine("❌ Kein Authorization-Header oder falsches Format.");
+  🔹 Token Keywords: Bearer, token
+    Zeile 151: var token = authHeader.Replace("Bearer ", "");
+  🔹 Token Keywords: token
+    Zeile 153: var exists = await db.KeyExistsAsync($"token:{token}");
+  🔹 Token Keywords: Token
+    Zeile 155: Console.WriteLine(exists ? "✅ Token in Redis gefunden." : "❌ Token nicht in Redis vorhanden.");
+  🔹 Token Keywords: Token
+    Zeile 175: // 🔓 Token löschen (Logout) – abgesichert mit [Authorize]
+  🔹 Token Keywords: Authorization
+    Zeile 176: app.MapPost("/api/logout", [Microsoft.AspNetCore.Authorization.Authorize] async (
+  🔹 Token Keywords: Authorization
+    Zeile 181: var authHeader = http.Request.Headers["Authorization"].ToString();
+  🔹 Token Keywords: Bearer
+    Zeile 182: if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+  🔹 Token Keywords: Authorization
+    Zeile 183: return Results.BadRequest("Kein oder ungültiger Authorization-Header.");
+  🔹 Token Keywords: Bearer, token
+    Zeile 185: var token = authHeader.Replace("Bearer ", "");
+  🔹 Token Keywords: token
+    Zeile 187: var deleted = await db.KeyDeleteAsync($"token:{token}");
+  🔹 Token Keywords: Token, token
+    Zeile 190: ? $"🧹 Token gelöscht: token:{token}"
+  🔹 Token Keywords: Token, token
+    Zeile 191: : $"⚠️ Token war nicht vorhanden: token:{token}");
+  🔹 Token Keywords: Token
+    Zeile 193: // Optional: logge auch den Benutzername oder Role aus dem Token
+  🔹 Connection Stringss: ConnectionString
+    Zeile 15: var redisConnection = configuration.GetSection("Redis")["ConnectionString"] ?? "redis:6379";
+
+📄 Datei: SRMAuth\Controllers\AuthController.cs
+  🔹 JWT Keywords: Jwt
+    Zeile 1: using System.IdentityModel.Tokens.Jwt;
+
+📄 Datei: SRMAuth\Models\LoginRequest.cs
+  🔹 Passwords: Password
+    Zeile 6: public string Password { get; set; } = string.Empty;
+
+📄 Datei: SRMAuth\Models\RegisterRequest.cs
+  🔹 Passwords: Password
+    Zeile 6: public string Password { get; set; } = string.Empty;
+
+📄 Datei: SRMAuth\obj\Debug\net8.0\SRMAuth.AssemblyInfo.cs
+  🔹 IP Addresss: 1.0.0.0
+    Zeile 15: [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+  🔹 IP Addresss: 1.0.0.0
+    Zeile 19: [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+  🔹 Ports: 436
+    Zeile 16: [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+436e9fb9c86348d63335d9731818f51d9ab16dec")]
+
+📄 Datei: SRMAuth\Services\TokenService.cs
+  🔹 Passwords: token
+    Zeile 29: var token = new JwtSecurityToken(
+  🔹 JWT Keywords: Jwt
+    Zeile 1: using System.IdentityModel.Tokens.Jwt;
+  🔹 JWT Keywords: Jwt
+    Zeile 26: var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+  🔹 Token Keywords: token
+    Zeile 29: var token = new JwtSecurityToken(
+  🔹 Token Keywords: token
+    Zeile 34: return new JwtSecurityTokenHandler().WriteToken(token);
+
+📄 Datei: SRMCore\Program.cs
+  🔹 URLs: http://localhost:5173
+    Zeile 61: policy.WithOrigins("http://localhost:5173")
+  🔹 Ports: 2714
+    Zeile 104: catch (SqlException ex) when (ex.Number == 2714) // "There is already an object named ..."
+  🔹 Ports: 64
+    Zeile 195: AuthToken = GenerateSecureToken(64),
+  🔹 Ports: 64
+    Zeile 202: AuthToken = GenerateSecureToken(64),
+  🔹 Passwords: Token
+    Zeile 217: Console.WriteLine("🧾 Agent Token Übersicht:");
+  🔹 API Keys: API-Key
+    Zeile 166: // 🔄 Redmine-API-Key automatisch setzen/überschreiben
+  🔹 API Keys: API-Key
+    Zeile 170: throw new Exception("Redmine API-Key fehlt in der Konfiguration (Redmine:ApiKey)");
+  🔹 API Keys: ApiKey
+    Zeile 183: ApiKey = currentApiKey
+  🔹 JWT Keywords: JWT
+    Zeile 14: // 🔑 JWT-Konfiguration
+  🔹 JWT Keywords: JWT, Jwt
+    Zeile 15: var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new Exception("JWT-Key fehlt in der Konfiguration.");
+  🔹 JWT Keywords: JWT
+    Zeile 24: // 🔐 Authentifizierung & JWT-Validierung
+  🔹 Token Keywords: Token
+    Zeile 211: // Token-Ausgabe für Debugzwecke
+  🔹 Token Keywords: Token
+    Zeile 217: Console.WriteLine("🧾 Agent Token Übersicht:");
+  🔹 Token Keywords: Token
+    Zeile 227: // 🔐 Hilfsfunktion zur Token-Generierung
+  🔹 Common Hostss: localhost
+    Zeile 61: policy.WithOrigins("http://localhost:5173")
+
+📄 Datei: SRMCore\Controllers\AuthController.cs
+  🔹 Ports: 500
+    Zeile 88: return StatusCode(500, "Fehler bei der Tokenvalidierung.");
+  🔹 Ports: 500
+    Zeile 124: return StatusCode(500, "Fehler beim Abmelden.");
+  🔹 Passwords: token
+    Zeile 32: var token = await _tokenService.RequestTokenAsync(user.UserId, user.Role, user.ComId);
+  🔹 Passwords: Token
+    Zeile 48: // 1. Token extrahieren
+  🔹 Passwords: token
+    Zeile 49: var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+  🔹 Passwords: token
+    Zeile 52: token = Request.Cookies["jwt"];
+  🔹 Passwords: Token
+    Zeile 56: return Unauthorized("Kein Token vorhanden.");
+  🔹 Passwords: Token
+    Zeile 74: return Unauthorized("Token ungültig.");
+  🔹 Passwords: token
+    Zeile 98: var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+  🔹 Passwords: token
+    Zeile 101: token = Request.Cookies["jwt"];
+  🔹 Passwords: Token
+    Zeile 105: return Unauthorized("Kein Token vorhanden.");
+  🔹 JWT Keywords: jwt
+    Zeile 34: Response.Cookies.Append("jwt", token, new CookieOptions
+  🔹 JWT Keywords: jwt
+    Zeile 52: token = Request.Cookies["jwt"];
+  🔹 JWT Keywords: jwt
+    Zeile 101: token = Request.Cookies["jwt"];
+  🔹 JWT Keywords: jwt
+    Zeile 117: Response.Cookies.Delete("jwt");
+  🔹 Token Keywords: Authorization
+    Zeile 1: using Microsoft.AspNetCore.Authorization;
+  🔹 Token Keywords: TOKEN
+    Zeile 30: Console.WriteLine($"🧪 TOKEN-REQUEST: uid={user.UserId}, role={user.Role}, comId={user.ComId}");
+  🔹 Token Keywords: token
+    Zeile 32: var token = await _tokenService.RequestTokenAsync(user.UserId, user.Role, user.ComId);
+  🔹 Token Keywords: token
+    Zeile 34: Response.Cookies.Append("jwt", token, new CookieOptions
+  🔹 Token Keywords: Token
+    Zeile 48: // 1. Token extrahieren
+  🔹 Token Keywords: Authorization, Bearer, token
+    Zeile 49: var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+  🔹 Token Keywords: token
+    Zeile 50: if (string.IsNullOrEmpty(token))
+  🔹 Token Keywords: token
+    Zeile 52: token = Request.Cookies["jwt"];
+  🔹 Token Keywords: token
+    Zeile 55: if (string.IsNullOrEmpty(token))
+  🔹 Token Keywords: Token
+    Zeile 56: return Unauthorized("Kein Token vorhanden.");
+  🔹 Token Keywords: Token
+    Zeile 58: // 2. Anfrage an Token-Service vorbereiten
+  🔹 Token Keywords: Authorization, Bearer, token
+    Zeile 61: httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+  🔹 Token Keywords: TOKEN
+    Zeile 68: Console.WriteLine($"📥 TOKEN-VALIDIERUNG: StatusCode = {response.StatusCode}");
+  🔹 Token Keywords: TOKEN
+    Zeile 70: Console.WriteLine($"📦 TOKEN-RESPONSE: {rawResponse}");
+  🔹 Token Keywords: Token
+    Zeile 74: return Unauthorized("Token ungültig.");
+  🔹 Token Keywords: Token
+    Zeile 87: Console.WriteLine($"❌ Fehler beim Token-Service: {ex.Message}");
+  🔹 Token Keywords: Authorization, Bearer, token
+    Zeile 98: var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+  🔹 Token Keywords: token
+    Zeile 99: if (string.IsNullOrEmpty(token))
+  🔹 Token Keywords: token
+    Zeile 101: token = Request.Cookies["jwt"];
+  🔹 Token Keywords: token
+    Zeile 104: if (string.IsNullOrEmpty(token))
+  🔹 Token Keywords: Token
+    Zeile 105: return Unauthorized("Kein Token vorhanden.");
+  🔹 Token Keywords: Authorization, Bearer, token
+    Zeile 111: httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+📄 Datei: SRMCore\Controllers\CoreServiceController.cs
+  🔹 Ports: 100
+    Zeile 71: query = (IOrderedQueryable<Log>)query.Take(100);
+  🔹 Passwords: token
+    Zeile 34: var token = Request.Headers["X-AGENT-TOKEN"].ToString();
+  🔹 Passwords: token
+    Zeile 63: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Passwords: token
+    Zeile 64: if (token == null || !token.Valid) return Unauthorized();
+  🔹 Passwords: token
+    Zeile 83: var token = Request.Headers["X-AGENT-TOKEN"].ToString();
+  🔹 JWT Keywords: jwt
+    Zeile 62: var jwt = authHeader.Replace("Bearer ", "");
+  🔹 JWT Keywords: jwt
+    Zeile 63: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Token Keywords: TOKEN, token
+    Zeile 34: var token = Request.Headers["X-AGENT-TOKEN"].ToString();
+  🔹 Token Keywords: token
+    Zeile 35: if (string.IsNullOrWhiteSpace(token)) return Unauthorized();
+  🔹 Token Keywords: token
+    Zeile 37: var comId = await _agentAuth.ValidateAgentAsync(token);
+  🔹 Token Keywords: Authorization
+    Zeile 59: var authHeader = Request.Headers.Authorization.ToString();
+  🔹 Token Keywords: Bearer
+    Zeile 60: if (!authHeader.StartsWith("Bearer ")) return Unauthorized();
+  🔹 Token Keywords: Bearer
+    Zeile 62: var jwt = authHeader.Replace("Bearer ", "");
+  🔹 Token Keywords: token
+    Zeile 63: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Token Keywords: token
+    Zeile 64: if (token == null || !token.Valid) return Unauthorized();
+  🔹 Token Keywords: token
+    Zeile 67: .Where(l => l.ComId == token.CustomerId)
+  🔹 Token Keywords: token
+    Zeile 70: if (token.Role?.ToLower() == "customer")
+  🔹 Token Keywords: TOKEN, token
+    Zeile 83: var token = Request.Headers["X-AGENT-TOKEN"].ToString();
+  🔹 Token Keywords: token
+    Zeile 84: if (string.IsNullOrWhiteSpace(token)) return Unauthorized();
+  🔹 Token Keywords: token
+    Zeile 86: var comId = await _agentAuth.ValidateAgentAsync(token);
+
+📄 Datei: SRMCore\Controllers\IPController.cs
+  🔹 Passwords: token
+    Zeile 56: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Passwords: token
+    Zeile 57: if (token == null || !token.Valid)
+  🔹 Passwords: Token
+    Zeile 63: _logger.LogInformation("✅ Gültiger Token für ComId={ComId}, Role={Role}", token.CustomerId, token.Role);
+  🔹 Passwords: token
+    Zeile 86: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Passwords: token
+    Zeile 87: if (token == null || !token.Valid)
+  🔹 Passwords: token
+    Zeile 124: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Passwords: token
+    Zeile 125: if (token == null || !token.Valid)
+  🔹 Passwords: token
+    Zeile 156: var token = Request.Headers["X-AGENT-TOKEN"].FirstOrDefault();
+  🔹 Passwords: Token
+    Zeile 159: _logger.LogWarning("🔒 Kein Agent-Token übergeben.");
+  🔹 Passwords: Token
+    Zeile 166: _logger.LogWarning("🔑 Ungültiges Agent-Token: {Token}", token);
+  🔹 JWT Keywords: jwt
+    Zeile 33: var cookieToken = Request.Cookies["jwt"];
+  🔹 JWT Keywords: JWT
+    Zeile 36: _logger.LogDebug("JWT extrahiert aus Cookie: {Token}", cookieToken);
+  🔹 JWT Keywords: jwt
+    Zeile 49: var jwt = ExtractBearerToken();
+  🔹 JWT Keywords: jwt
+    Zeile 50: if (jwt == null)
+  🔹 JWT Keywords: JWT
+    Zeile 52: _logger.LogWarning("🔒 Zugriff ohne JWT");
+  🔹 JWT Keywords: jwt
+    Zeile 56: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 JWT Keywords: jwt
+    Zeile 79: var jwt = ExtractBearerToken();
+  🔹 JWT Keywords: jwt
+    Zeile 80: if (jwt == null)
+  🔹 JWT Keywords: JWT
+    Zeile 82: _logger.LogWarning("🔒 Zugriff ohne JWT");
+  🔹 JWT Keywords: jwt
+    Zeile 86: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 JWT Keywords: jwt
+    Zeile 117: var jwt = ExtractBearerToken();
+  🔹 JWT Keywords: jwt
+    Zeile 118: if (jwt == null)
+  🔹 JWT Keywords: JWT
+    Zeile 120: _logger.LogWarning("🔒 Zugriff ohne JWT");
+  🔹 JWT Keywords: jwt
+    Zeile 124: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Token Keywords: Authorization
+    Zeile 1: using Microsoft.AspNetCore.Authorization;
+  🔹 Token Keywords: Authorization
+    Zeile 30: var authHeader = Request.Headers.Authorization.FirstOrDefault();
+  🔹 Token Keywords: Authorization
+    Zeile 31: _logger.LogDebug("Authorization Header: {Header}", authHeader);
+  🔹 Token Keywords: Token
+    Zeile 36: _logger.LogDebug("JWT extrahiert aus Cookie: {Token}", cookieToken);
+  🔹 Token Keywords: Authorization
+    Zeile 40: _logger.LogWarning("Kein gültiger Authorization Header oder Cookie vorhanden.");
+  🔹 Token Keywords: token
+    Zeile 56: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Token Keywords: token
+    Zeile 57: if (token == null || !token.Valid)
+  🔹 Token Keywords: Token
+    Zeile 59: _logger.LogWarning("🔑 Ungültiger oder abgelaufener Token.");
+  🔹 Token Keywords: Token, token
+    Zeile 63: _logger.LogInformation("✅ Gültiger Token für ComId={ComId}, Role={Role}", token.CustomerId, token.Role);
+  🔹 Token Keywords: token
+    Zeile 66: .Where(i => i.ComId == token.CustomerId)
+  🔹 Token Keywords: token
+    Zeile 70: _logger.LogInformation("📤 {Count} IPs gefunden für ComId={ComId}", ips.Count, token.CustomerId);
+  🔹 Token Keywords: token
+    Zeile 86: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Token Keywords: token
+    Zeile 87: if (token == null || !token.Valid)
+  🔹 Token Keywords: Token
+    Zeile 89: _logger.LogWarning("🔑 Ungültiger oder abgelaufener Token.");
+  🔹 Token Keywords: token
+    Zeile 93: if (token.Role != "customeradmin")
+  🔹 Token Keywords: token
+    Zeile 95: _logger.LogWarning("🚫 Zugriff verweigert – Rolle ist nicht 'customeradmin'. Aktuelle Rolle: {Role}", token.Role);
+  🔹 Token Keywords: token
+    Zeile 99: if (await _db.IPs.AnyAsync(i => i.ComId == token.CustomerId && i.IpAddress == ip))
+  🔹 Token Keywords: token
+    Zeile 101: _logger.LogWarning("⚠️ IP {Ip} existiert bereits für ComId={ComId}", ip, token.CustomerId);
+  🔹 Token Keywords: token
+    Zeile 105: _db.IPs.Add(new IP { ComId = token.CustomerId, IpAddress = ip });
+  🔹 Token Keywords: token
+    Zeile 108: _logger.LogInformation("✅ IP {Ip} hinzugefügt für ComId={ComId}", ip, token.CustomerId);
+  🔹 Token Keywords: token
+    Zeile 124: var token = await _tokenValidator.ValidateTokenAsync(jwt);
+  🔹 Token Keywords: token
+    Zeile 125: if (token == null || !token.Valid)
+  🔹 Token Keywords: Token
+    Zeile 127: _logger.LogWarning("🔑 Ungültiger oder abgelaufener Token.");
+  🔹 Token Keywords: token
+    Zeile 131: if (token.Role != "customeradmin")
+  🔹 Token Keywords: token
+    Zeile 133: _logger.LogWarning("🚫 Zugriff verweigert – Rolle ist nicht 'customeradmin'. Aktuelle Rolle: {Role}", token.Role);
+  🔹 Token Keywords: token
+    Zeile 137: var entry = await _db.IPs.FirstOrDefaultAsync(i => i.ComId == token.CustomerId && i.IpAddress == ip);
+  🔹 Token Keywords: token
+    Zeile 140: _logger.LogWarning("❌ IP {Ip} nicht gefunden für ComId={ComId}", ip, token.CustomerId);
+  🔹 Token Keywords: token
+    Zeile 147: _logger.LogInformation("🗑️ IP {Ip} gelöscht für ComId={ComId}", ip, token.CustomerId);
+  🔹 Token Keywords: TOKEN, token
+    Zeile 156: var token = Request.Headers["X-AGENT-TOKEN"].FirstOrDefault();
+  🔹 Token Keywords: token
+    Zeile 157: if (string.IsNullOrWhiteSpace(token))
+  🔹 Token Keywords: Token
+    Zeile 159: _logger.LogWarning("🔒 Kein Agent-Token übergeben.");
+  🔹 Token Keywords: token
+    Zeile 163: var comId = await _agentAuth.ValidateAgentAsync(token);
+  🔹 Token Keywords: Token, token
+    Zeile 166: _logger.LogWarning("🔑 Ungültiges Agent-Token: {Token}", token);
+
+📄 Datei: SRMCore\Data\CoreDbContext.cs
+  🔹 API Keys: ApiKey
+    Zeile 25: modelBuilder.Entity<Redmine>().HasKey(r => new { r.ComId, r.ApiKey });
+  🔹 API Keys: ApiKey
+    Zeile 63: .HasIndex(r => new { r.ComId, r.ApiKey })
+
+📄 Datei: SRMCore\Migrations\20250514220451_InitialCreate.cs
+  🔹 Ports: 450
+    Zeile 32: AuthToken = table.Column<string>(type: "nvarchar(450)", nullable: false),
+  🔹 Ports: 450
+    Zeile 51: IpAddress = table.Column<string>(type: "nvarchar(450)", nullable: false),
+  🔹 Ports: 450
+    Zeile 92: ApiKey = table.Column<string>(type: "nvarchar(450)", nullable: false)
+  🔹 API Keys: ApiKey
+    Zeile 92: ApiKey = table.Column<string>(type: "nvarchar(450)", nullable: false)
+  🔹 API Keys: ApiKey
+    Zeile 96: table.PrimaryKey("PK_Redmines", x => new { x.ComId, x.ApiKey });
+
+📄 Datei: SRMCore\Migrations\20250514220451_InitialCreate.Designer.cs
+  🔹 Ports: 612, 618
+    Zeile 21: #pragma warning disable 612, 618
+  🔹 Ports: 128
+    Zeile 24: .HasAnnotation("Relational:MaxIdentifierLength", 128);
+  🔹 Ports: 450
+    Zeile 36: .HasColumnType("nvarchar(450)");
+  🔹 Ports: 450
+    Zeile 77: .HasColumnType("nvarchar(450)");
+  🔹 Ports: 450
+    Zeile 122: .HasColumnType("nvarchar(450)");
+  🔹 Ports: 612, 618
+    Zeile 232: #pragma warning restore 612, 618
+
+📄 Datei: SRMCore\Migrations\CoreDbContextModelSnapshot.cs
+  🔹 Ports: 612, 618
+    Zeile 18: #pragma warning disable 612, 618
+  🔹 Ports: 128
+    Zeile 21: .HasAnnotation("Relational:MaxIdentifierLength", 128);
+  🔹 Ports: 450
+    Zeile 33: .HasColumnType("nvarchar(450)");
+  🔹 Ports: 450
+    Zeile 74: .HasColumnType("nvarchar(450)");
+  🔹 Ports: 450
+    Zeile 119: .HasColumnType("nvarchar(450)");
+  🔹 Ports: 612, 618
+    Zeile 229: #pragma warning restore 612, 618
+
+📄 Datei: SRMCore\Models\LoginRequest.cs
+  🔹 Passwords: Password
+    Zeile 6: public string Password { get; set; } = null!;
+
+📄 Datei: SRMCore\Models\Redmine.cs
+  🔹 API Keys: ApiKey
+    Zeile 6: public string ApiKey { get; set; } = null!;
+
+📄 Datei: SRMCore\obj\Debug\net8.0\SRMCore.AssemblyInfo.cs
+  🔹 IP Addresss: 1.0.0.0
+    Zeile 15: [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+  🔹 IP Addresss: 1.0.0.0
+    Zeile 19: [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+  🔹 Ports: 436
+    Zeile 16: [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+436e9fb9c86348d63335d9731818f51d9ab16dec")]
+
+📄 Datei: SRMCore\Services\AgentAuthService.cs
+  🔹 Passwords: token
+    Zeile 17: var agent = await _db.Agents.FirstOrDefaultAsync(a => a.AuthToken == token && a.Enabled);
+  🔹 Token Keywords: token
+    Zeile 15: public async Task<int?> ValidateAgentAsync(string token)
+  🔹 Token Keywords: token
+    Zeile 17: var agent = await _db.Agents.FirstOrDefaultAsync(a => a.AuthToken == token && a.Enabled);
+
+📄 Datei: SRMCore\Services\AlarmService.cs
+  🔹 Ports: 30
+    Zeile 24: if (data.CurrentTemp > 30)
+  🔹 Ports: 30
+    Zeile 25: messages.Add($"Temperatur über 30°C: {data.CurrentTemp}°C");
+
+📄 Datei: SRMCore\Services\IAgentAuthService.cs
+  🔹 Token Keywords: token
+    Zeile 5: Task<int?> ValidateAgentAsync(string token);
+
+📄 Datei: SRMCore\Services\ITokenValidationService.cs
+  🔹 Token Keywords: token
+    Zeile 7: Task<TokenValidationResult?> ValidateTokenAsync(string token);
+
+📄 Datei: SRMCore\Services\RedmineService.cs
+  🔹 URLs: http://redmine:3000/issues.json
+    Zeile 36: var req = new HttpRequestMessage(HttpMethod.Post, "http://redmine:3000/issues.json");
+  🔹 API Keys: API-Key
+    Zeile 34: _logger.LogInformation("🔑 Redmine API-Key für ComId={ComId}: {ApiKey}", comId, redmine.ApiKey); // 👈 NEU
+
+📄 Datei: SRMCore\Services\TokenService.cs
+  🔹 Passwords: Token
+    Zeile 35: Console.WriteLine($"❌ Token request failed: {response.StatusCode} – {error}");
+  🔹 Token Keywords: token
+    Zeile 30: $"{_config["TokenService:BaseUrl"]}/api/token", request);
+  🔹 Token Keywords: Token
+    Zeile 35: Console.WriteLine($"❌ Token request failed: {response.StatusCode} – {error}");
+  🔹 Token Keywords: token
+    Zeile 40: return result?["token"] ?? string.Empty;
+
+📄 Datei: SRMCore\Services\TokenValidationService.cs
+  🔹 Token Keywords: token
+    Zeile 19: public async Task<TokenValidationResult?> ValidateTokenAsync(string token)
+  🔹 Token Keywords: Authorization, Bearer, token
+    Zeile 22: request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

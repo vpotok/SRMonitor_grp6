@@ -64,7 +64,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials());
 });
 
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -91,10 +90,10 @@ app.Use(async (context, next) =>
 app.MapControllers();
 
 // 🗃️ DB-Migration + Seeding
-using (var scope = app.Services.CreateScope())
+using (var dbScope = app.Services.CreateScope())  // Der korrekte Name für den scope
 {
-    var db = scope.ServiceProvider.GetRequiredService<CoreDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var db = dbScope.ServiceProvider.GetRequiredService<CoreDbContext>();
+    var logger = dbScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
     try
     {
@@ -110,115 +109,113 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "❌ Fehler bei der Migration.");
     }
 
-
-    if (db.Companies.Any())
+    // Firmen erzeugen oder laden
+    var companyA = db.Companies.FirstOrDefault(c => c.ComName == "AlphaTech");
+    if (companyA == null)
     {
-        var companyA = db.Companies.FirstOrDefault(c => c.ComName == "AlphaTech");
-if (companyA == null)
-{
-    companyA = new Company { ComName = "AlphaTech" };
-    db.Companies.Add(companyA);
-}
-
-var companyB = db.Companies.FirstOrDefault(c => c.ComName == "BetaCorp");
-if (companyB == null)
-{
-    companyB = new Company { ComName = "BetaCorp" };
-    db.Companies.Add(companyB);
-}
-
-db.SaveChanges();
-
-
-        db.Users.AddRange(
-            new User
-            {
-                UserName = "alpha_admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Role = "customeradmin",
-                ComId = companyA.ComId
-            },
-            new User
-            {
-                UserName = "alpha_user",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"),
-                Role = "customer",
-                ComId = companyA.ComId
-            },
-            new User
-            {
-                UserName = "beta_admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Role = "customeradmin",
-                ComId = companyB.ComId
-            },
-            new User
-            {
-                UserName = "beta_user",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"),
-                Role = "customer",
-                ComId = companyB.ComId
-            }
-        );
-        db.SaveChanges();
+        companyA = new Company { ComName = "AlphaTech" };
+        db.Companies.Add(companyA);
+        logger.LogInformation("📦 Neue Firma 'AlphaTech' wird hinzugefügt.");
     }
 
-   // 🔄 Redmine-API-Key automatisch setzen/überschreiben
-var currentApiKey = builder.Configuration["Redmine:ApiKey"];
-if (string.IsNullOrEmpty(currentApiKey))
-{
-    throw new Exception("Redmine API-Key fehlt in der Konfiguration (Redmine:ApiKey)");
-}
-
-var existing = db.Redmines.FirstOrDefault(r => r.ComId == 1);
-if (existing != null)
-{
-    db.Redmines.Remove(existing);
-    db.SaveChanges(); // notwendig um den alten Key zu entfernen
-}
-
-db.Redmines.Add(new Redmine
-{
-    ComId = 1,
-    ApiKey = currentApiKey
-});
-db.SaveChanges();
-
-
-
-    if (!db.Agents.Any())
+    var companyB = db.Companies.FirstOrDefault(c => c.ComName == "BetaCorp");
+    if (companyB == null)
     {
-        db.Agents.AddRange(
-            new Agent
-            {
-                Uuid = Guid.NewGuid(),
-                AuthToken = GenerateSecureToken(64),
-                ComId = 1, // AlphaTech
-                Enabled = true
-            },
-            new Agent
-            {
-                Uuid = Guid.NewGuid(),
-                AuthToken = GenerateSecureToken(64),
-                ComId = 2, // BetaCorp
-                Enabled = true
-            }
+        companyB = new Company { ComName = "BetaCorp" };
+        db.Companies.Add(companyB);
+        logger.LogInformation("📦 Neue Firma 'BetaCorp' wird hinzugefügt.");
+    }
+
+    db.SaveChanges();
+    logger.LogInformation("💾 Firmen gespeichert: AlphaTech (ID={ComIdA}), BetaCorp (ID={ComIdB})",
+        companyA.ComId, companyB.ComId);
+
+    // Nutzer hinzufügen
+    if (!db.Users.Any())
+    {
+        logger.LogInformation("➕ Benutzer werden erstellt...");
+
+        db.Users.AddRange(
+            new User { UserName = "alpha_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), Role = "customeradmin", ComId = companyA.ComId },
+            new User { UserName = "alpha_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"), Role = "customer", ComId = companyA.ComId },
+            new User { UserName = "beta_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"), Role = "customeradmin", ComId = companyB.ComId },
+            new User { UserName = "beta_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword("user123"), Role = "customer", ComId = companyB.ComId }
         );
         db.SaveChanges();
+        logger.LogInformation("✅ Benutzer gespeichert.");
+    }
 
-        logger.LogInformation("✅ Agenten mit sicheren Tokens wurden angelegt.");
+    // Redmine API-Key setzen
+    var currentApiKey = builder.Configuration["Redmine:ApiKey"];
+    if (string.IsNullOrEmpty(currentApiKey))
+    {
+        logger.LogError("❌ Redmine API-Key fehlt in der Konfiguration!");
+        throw new Exception("Redmine API-Key fehlt in der Konfiguration (Redmine:ApiKey)");
+    }
 
-        // Token-Ausgabe für Debugzwecke
-        var agents = db.Agents
-            .OrderBy(a => a.ComId)
-            .Select(a => new { a.ComId, a.AuthToken })
-            .ToList();
+    logger.LogInformation("🔑 Redmine API-Key wird für ComId={ComId} gesetzt...", companyA.ComId);
+    var existing = db.Redmines.FirstOrDefault(r => r.ComId == companyA.ComId);
+    if (existing != null)
+    {
+        db.Redmines.Remove(existing);
+        db.SaveChanges();
+        logger.LogInformation("🗑️ Bestehender Redmine-Eintrag für ComId={ComId} entfernt.", companyA.ComId);
+    }
+
+    db.Redmines.Add(new Redmine
+    {
+        ComId = companyA.ComId,
+        ApiKey = currentApiKey
+    });
+
+    try
+    {
+        db.SaveChanges();
+        logger.LogInformation("✅ Redmine-API-Key gespeichert für ComId={ComId}.", companyA.ComId);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Fehler beim Einfügen des Redmine-API-Keys für ComId={ComId}.", companyA.ComId);
+        throw;
+    }
+
+    // Agenten erzeugen
+    if (!db.Agents.Any())
+    {
+        logger.LogInformation("🛠️ Agenten werden angelegt...");
+
+        var agentA = new Agent
+        {
+            Uuid = Guid.NewGuid(),
+            AuthToken = GenerateSecureToken(64),
+            ComId = companyA.ComId,
+            Enabled = true
+        };
+
+        var agentB = new Agent
+        {
+            Uuid = Guid.NewGuid(),
+            AuthToken = GenerateSecureToken(64),
+            ComId = companyB.ComId,
+            Enabled = true
+        };
+
+        db.Agents.AddRange(agentA, agentB);
+
+        try
+        {
+            db.SaveChanges();
+            logger.LogInformation("✅ Agenten gespeichert.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "❌ Fehler beim Speichern der Agenten.");
+            throw;
+        }
 
         Console.WriteLine("🧾 Agent Token Übersicht:");
-        foreach (var agent in agents)
-        {
-            Console.WriteLine($"→ ComId {agent.ComId}: {agent.AuthToken}");
-        }
+        Console.WriteLine($"→ {companyA.ComName} (ComId={companyA.ComId}): {agentA.AuthToken}");
+        Console.WriteLine($"→ {companyB.ComName} (ComId={companyB.ComId}): {agentB.AuthToken}");
     }
 }
 

@@ -1,0 +1,288 @@
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\AgentData.cs
+  🔹 Classs: A, D, a, e, g, n, t
+  🔹 Variables: AgentId, CurrentBattery, CurrentTemp, CustomerId, DoorOpen, ShellyId, bool, float, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\Program.cs
+  🔹 Classs: P, a, g, m, o, r
+  🔹 Methods: Main
+  🔹 Variables: app, builder, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\WorkerService.cs
+  🔹 Classs: S, W, c, e, i, k, o, r, v
+  🔹 Methods: CallCore, CallShelly, ExecuteAsync, while
+  🔹 Variables: const, int
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\Controllers\AgentDataController.cs
+  🔹 Classs: A, C, D, a, e, g, l, n, o, r, t
+  🔹 Methods: AgentData, AgentDataController, Get
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\obj\Debug\net8.0\SRMAgent.AssemblyInfo.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAgent\obj\Debug\net8.0\SRMAgent.GlobalUsings.g.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\eslint.config.js
+  🔹 Components:  , a, d, e, f, l, o, p, r, t, u, x
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\index.html
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\vite.config.js
+  🔹 Components:  , a, d, e, f, l, o, p, r, t, u, x
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\App.vue
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\main.js
+  🔹 Functions: import
+  🔹 Variables: app, const
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\assets\base.css
+  🔹 Methods: media
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\assets\main.css
+  🔹 Methods: media
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\DeviceLogs.vue
+  🔹 Variables: const, logs
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\Navbar.vue
+  🔹 Functions: navigateTo
+  🔹 Methods: catch
+  🔹 Variables: const, logout, navigateTo, role, router
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\PingList.vue
+  🔹 Functions: editIp
+  🔹 Methods: catch, if
+  🔹 Variables: const, deleteIp, editIp, editingIndex, handleSubmit, ipList, ipToUpdate, loadIps, newIp
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\icons\IconCommunity.vue
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\icons\IconDocumentation.vue
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\icons\IconEcosystem.vue
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\icons\IconSupport.vue
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\components\icons\IconTooling.vue
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\router\index.js
+  🔹 Variables: const, router, routes
+  🔹 Components:  , a, d, e, f, l, o, p, r, t, u, x
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\services\authService.js
+  🔹 Functions: getUserRole, loginUser, logoutUser
+  🔹 Methods: catch, getUserRole, if, loginUser, logoutUser
+  🔹 Variables: API_BASE_URL, const, response
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\services\logsService.js
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\services\pingService.js
+  🔹 Functions: fetchIps, handleAddIp, handleDeleteIp
+  🔹 Methods: fetchIps, handleAddIp, handleDeleteIp
+  🔹 Variables: API_BASE_URL, const, ipv4Regex, response
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\views\DashboardView.vue
+  🔹 Methods: catch
+  🔹 Variables: const, role
+  🔹 Components: <, >, a, e, l, m, p, t
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMApp\src\views\LoginView.vue
+  🔹 Methods: catch, data, fillAdmin, if, login
+  🔹 Components:  , <, >, a, d, e, f, l, m, o, p, r, t, u, x
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\AuthData.cs
+  🔹 Classs: A, D, a, h, t, u
+  🔹 Variables: AccessLevel, Token, Username, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Program.cs
+  🔹 Variables: app, authHeader, builder, configuration, customerId, db, deleted, exists, hash, jwt, jwtKey, key, redis, redisConnection, role, superAdminHash, superAdminKey, superAdminPassword, superAdminRole, superAdminUsername, token, tokenDescriptor, tokenHandler, user, username, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Controllers\AuthController.cs
+  🔹 Classs: A, C, e, h, l, n, o, r, t, u
+  🔹 Methods: AuthController
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Controllers\SRMAuthController.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Models\LoginRequest.cs
+  🔹 Classs: L, R, e, g, i, n, o, q, s, t, u
+  🔹 Variables: Password, Username, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Models\RegisterRequest.cs
+  🔹 Classs: R, e, g, i, q, r, s, t, u
+  🔹 Variables: Password, Role, Username, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Models\TokenRequest.cs
+  🔹 Classs: R, T, e, k, n, o, q, s, t, u
+  🔹 Variables: CustomerId, Role, UserId, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\obj\Debug\net8.0\SRMAuth.AssemblyInfo.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\obj\Debug\net8.0\SRMAuth.GlobalUsings.g.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMAuth\Services\TokenService.cs
+  🔹 Classs: S, T, c, e, i, k, n, o, r, v
+  🔹 Methods: GenerateToken, TokenService
+  🔹 Variables: GenerateToken, claims, creds, customerId, int, key, role, string, token, userId, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\CoreServiceData.cs
+  🔹 Classs: C, D, S, a, c, e, i, o, r, t, v
+  🔹 Variables: AgentId, CurrentBattery, CurrentTemp, CustomerId, CustomerName, DoorOpen, ShellyId, bool, float, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Program.cs
+  🔹 Methods: GenerateSecureToken, catch, foreach, if
+  🔹 Variables: GenerateSecureToken, agent, agents, app, builder, companyA, companyB, const, currentApiKey, db, existing, int, jwtKey, key, length, logger, random, scope, string, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Controllers\AuthController.cs
+  🔹 Classs: A, C, e, h, l, n, o, r, t, u
+  🔹 Methods: AuthController, GetRole, Login, Logout, catch, if
+  🔹 Variables: httpClient, httpRequest, rawResponse, response, result, token, user, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Controllers\CoreServiceController.cs
+  🔹 Classs: C, S, c, e, i, l, n, o, r, t, v
+  🔹 Methods: CoreServiceController, GetLogs, ReceivePingResult, ReceiveShellyData
+  🔹 Variables: authHeader, comId, jwt, knownIp, log, logs, query, resultMessage, token, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Controllers\IPController.cs
+  🔹 Classs: C, I, P, e, l, n, o, r, t
+  🔹 Methods: AddIp, DeleteIp, ExtractBearerToken, GetForAgent, GetForUser, IPController, if
+  🔹 Variables: authHeader, comId, cookieToken, entry, ip, ips, jwt, string, token, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Data\CoreDbContext.cs
+  🔹 Classs: C, D, b, e, n, o, r, t, x
+  🔹 Methods: OnModelCreating, base
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Migrations\20250514220451_InitialCreate.cs
+  🔹 Classs: C, I, a, e, i, l, n, r, t
+  🔹 Methods: Down, Up
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Migrations\20250514220451_InitialCreate.Designer.cs
+  🔹 Classs: C, I, a, e, i, l, n, r, t
+  🔹 Methods: BuildTargetModel
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Migrations\CoreDbContextModelSnapshot.cs
+  🔹 Classs: C, D, M, S, a, b, d, e, h, l, n, o, p, r, s, t, x
+  🔹 Methods: BuildModel
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\Agent.cs
+  🔹 Classs: A, e, g, n, t
+  🔹 Variables: AuthToken, ComId, Enabled, bool, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\Company.cs
+  🔹 Classs: C, a, m, n, o, p, y
+  🔹 Variables: ComId, ComName, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\Customer.cs
+  🔹 Classs: C, e, m, o, r, s, t, u
+  🔹 Variables: Id, Name, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\IP.cs
+  🔹 Classs: I, P
+  🔹 Variables: ComId, IpAddress, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\Log.cs
+  🔹 Classs: L, g, o
+  🔹 Variables: ComId, LogId, Message, Type, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\LoginRequest.cs
+  🔹 Classs: L, R, e, g, i, n, o, q, s, t, u
+  🔹 Variables: Password, Username, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\PingResultDto.cs
+  🔹 Classs: D, P, R, e, g, i, l, n, o, s, t, u
+  🔹 Variables: IpAddress, Success, bool, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\Redmine.cs
+  🔹 Classs: R, d, e, i, m, n
+  🔹 Variables: ApiKey, ComId, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\ShellyData.cs
+  🔹 Classs: D, S, a, e, h, l, t, y
+  🔹 Variables: CustomerId, DoorOpen, Id, Mac, bool, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\ShellyDataDto.cs
+  🔹 Classs: D, S, a, e, h, l, o, t, y
+  🔹 Variables: CurrentTemp, DoorOpen, ShellyId, bool, float, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\TokenRequest.cs
+  🔹 Classs: R, T, e, k, n, o, q, s, t, u
+  🔹 Variables: CustomerId, Role, UserId, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\TokenValidationResponse.cs
+  🔹 Classs: R, T, V, a, d, e, i, k, l, n, o, p, s, t
+  🔹 Variables: Role, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\TokenValidationResult.cs
+  🔹 Classs: R, T, V, a, d, e, i, k, l, n, o, s, t, u
+  🔹 Variables: CustomerId, Role, Valid, bool, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Models\User.cs
+  🔹 Classs: U, e, r, s
+  🔹 Variables: ComId, PasswordHash, Role, UserId, UserName, int, string
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\obj\Debug\net8.0\SRMCore.AssemblyInfo.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\obj\Debug\net8.0\SRMCore.GlobalUsings.g.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\obj\Debug\net8.0\SRMCore.MvcApplicationPartsAssemblyInfo.cs
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\AgentAuthService.cs
+  🔹 Classs: A, S, c, e, g, h, i, n, r, t, u, v
+  🔹 Methods: AgentAuthService, ValidateAgentAsync
+  🔹 Variables: agent, string, token, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\AlarmService.cs
+  🔹 Classs: A, S, a, c, e, i, l, m, r, v
+  🔹 Methods: AlarmService, CheckAndTriggerRedmineIfNeededAsync
+  🔹 Variables: comId, description, int, messages, subject, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\IAgentAuthService.cs
+  🔹 Variables: string, token
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\IAlarmService.cs
+  🔹 Variables: comId, int
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\IRedmineService.cs
+  🔹 Variables: comId, description, int, string, subject
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\ITokenService.cs
+  🔹 Variables: customerId, int, role, string, userId
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\ITokenValidationService.cs
+  🔹 Variables: string, token
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\IUserService.cs
+  🔹 Variables: password, string, username
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\RedmineService.cs
+  🔹 Classs: R, S, c, d, e, i, m, n, r, v
+  🔹 Methods: CreateTicketAsync, RedmineService, catch, if
+  🔹 Variables: body, comId, description, int, json, redmine, req, response, string, subject, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\TokenService.cs
+  🔹 Classs: S, T, c, e, i, k, n, o, r, v
+  🔹 Methods: RequestTokenAsync, TokenService, if
+  🔹 Variables: customerId, error, int, request, response, result, role, string, userId, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\TokenValidationService.cs
+  🔹 Classs: S, T, V, a, c, d, e, i, k, l, n, o, r, t, v
+  🔹 Methods: TokenValidationService, ValidateTokenAsync
+  🔹 Variables: request, response, string, token, var
+
+📄 Datei: C:\Users\Alex\Downloads\Telegram Desktop\SRMonitor_grp6-gpg\SRMonitor_grp6-gpg\SRMCore\Services\UserService.cs
+  🔹 Classs: S, U, c, e, i, r, s, v
+  🔹 Methods: AuthenticateAsync, UserService
+  🔹 Variables: password, passwordMatches, string, user, username, var
