@@ -50,6 +50,7 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(token))
         {
             token = Request.Cookies["jwt"];
+            //Console.WriteLine($"Cookie-Token: {token}");
         }
 
         if (string.IsNullOrEmpty(token))

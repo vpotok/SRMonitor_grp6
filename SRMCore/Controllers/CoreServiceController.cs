@@ -123,7 +123,7 @@ public class CoreServiceController : ControllerBase
         var knownIp = await _db.IPs.AnyAsync(i => i.ComId == comId && i.IpAddress == dto.IpAddress);
         if (!knownIp) return BadRequest("IP-Adresse ist für diese Firma nicht registriert.");
 
-        var resultMessage = $"Ping zu {dto.IpAddress}: {(dto.Success ? "OK" : "Fehlgeschlagen")} - {dto.ResponseTimeMs}ms";
+        var resultMessage = $"Ping zu {dto.IpAddress}: {(dto.Success ? "OK" : "Fehlgeschlagen")} ";
 
         var log = new Log
         {

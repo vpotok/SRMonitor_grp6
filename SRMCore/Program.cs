@@ -127,11 +127,11 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:5173") // frontend URL
-              .AllowAnyHeader()
+    options.AddPolicy("AllowAll", policy =>
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyMethod()
-              .AllowCredentials()); // erlaubt Cookies/Auth
+              .AllowAnyHeader()
+              .AllowCredentials());
 });
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

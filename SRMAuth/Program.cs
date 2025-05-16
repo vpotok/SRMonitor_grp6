@@ -157,6 +157,7 @@ app.MapPost("/api/token", async (TokenRequest request, IConnectionMultiplexer re
 app.MapPost("/api/validate", [Microsoft.AspNetCore.Authorization.Authorize] async (HttpContext http, IConnectionMultiplexer redis, ClaimsPrincipal user) =>
 {
     var token = http.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+    Console.WriteLine($"🔍 Token-Validierung: {token}");
     var db = redis.GetDatabase();
 
     if (!await db.KeyExistsAsync($"token:{token}"))
