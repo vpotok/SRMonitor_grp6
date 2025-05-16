@@ -47,6 +47,7 @@ SRMonitor ist eine verteilte Anwendung zur Überwachung von Serverräumen, beste
 +------------------+        Internet        +------------------+
 |     Kunde        | <------------------->  |    Redmine       |
 +------------------+                        +------------------+
+```
 
 ### Ports
 
@@ -79,18 +80,20 @@ SRMonitor ist eine verteilte Anwendung zur Überwachung von Serverräumen, beste
 
 ## 🧩 ER-Diagramme
 
-*(Hier ER-Diagramm einfügen)*
+![ER-Diagramm](./images/ER_Diagramm.png)
 
 ## 📦 Klassendiagramme
 
-*(Hier Klassendiagramm einfügen)*
+![UML-Diagramm](./images/UML_Diagramm.png)
+
 
 ## 👥 Teammitglieder
 
-- Viktoria Potok  
+- Victoria Potok  
 - Thomas Bacher  
 - Ibrahim Farghali  
 - Alexander Zimmermann  
+- Maximilian Luegger
 - Fabian Strohmeier  
 
 ## 🚀 Anwendung starten
