@@ -32,7 +32,14 @@ namespace SRMAgent
                     Console.WriteLine($"Ping Results: {JsonSerializer.Serialize(pingResults)}");
 
                     // 3. Ergebnisse an den Core-Service senden
-                    await _controller.CallCore(pingResults);
+                    /*var payload = new
+                    {
+                        Type = "ip", // Füge das zusätzliche Feld hinzu
+                        Results = pingResults
+                    };*/
+                    var json = JsonSerializer.Serialize(pingResults);
+                    Console.WriteLine($"Sending JSON to Core Service: {json}");
+                    //await _controller.CallCore(json);
                 }
                 catch (Exception ex)
                 {

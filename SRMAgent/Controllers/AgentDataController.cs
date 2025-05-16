@@ -19,7 +19,7 @@ public class AgentDataController : ControllerBase
 
         // Füge den X-AGENT-TOKEN-Header hinzu
         string headerName = "X-AGENT-TOKEN";
-        string headerValue = "0123"; // Ersetze dies durch deinen tatsächlichen Token
+        string headerValue = "aBBtXTkzYArjpscJq5BKbLLYF3li0vLzSpzRbExbQlFCumPtiVausjxOukmnqePK"; // Ersetze dies durch deinen tatsächlichen Token
         if (!_httpClient.DefaultRequestHeaders.Contains(headerName))
         {
             _httpClient.DefaultRequestHeaders.Add(headerName, headerValue);
@@ -31,20 +31,20 @@ public class AgentDataController : ControllerBase
     public IActionResult ReceiveSensorData([FromQuery] double hum, [FromQuery] double temp, [FromQuery] string id, [FromQuery] double lux, [FromQuery] bool state)
     {
         // Log the received data
-        Console.WriteLine($"Received data from Shelly sensor:");
-        Console.WriteLine($"  Humidity: {hum}%");
-        Console.WriteLine($"  Temperature: {temp}°C");
-        Console.WriteLine($"  Shelly ID: {id}");
-        Console.WriteLine($"  Light Intensity: {lux} lux");
-        Console.WriteLine($"  Door State: {(state ? "Open" : "Closed")}");
+        //Console.WriteLine($"Received data from Shelly sensor:");
+        //Console.WriteLine($"  Humidity: {hum}%");
+        //Console.WriteLine($"  Temperature: {temp}°C");
+        //Console.WriteLine($"  Shelly ID: {id}");
+        //Console.WriteLine($"  Light Intensity: {lux} lux");
+        //Console.WriteLine($"  Door State: {(state ? "Open" : "Closed")}");
 
         // Create an AgentData object from the query parameters
         var receivedData = new AgentData
         {
             ShellyId = id,
             CurrentTemp = (float)temp,
-            CurrentHumidity = (float)hum,
-            Lux = (float)lux,
+            //CurrentHumidity = (float)hum,
+            //Lux = (float)lux,
             DoorOpen = state,
             KeepAliveTimestamp = DateTime.Now
         };
@@ -52,6 +52,11 @@ public class AgentDataController : ControllerBase
         // Log the created object
         Console.WriteLine($"Created AgentData object: {JsonSerializer.Serialize(receivedData)}");
 
+        /*var json = JsonSerializer.Serialize(new
+        {
+            Type = "sensorData",
+            Data = receivedData
+        });*/
         // Call Core to forward the data
         _ = CallCore(receivedData);
 
@@ -115,7 +120,7 @@ public class AgentDataController : ControllerBase
                 });
             }
         }
-
+        
         return pingResults;
     }
 
