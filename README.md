@@ -80,11 +80,11 @@ SRMonitor ist eine verteilte Anwendung zur Überwachung von Serverräumen, beste
 
 ## 🧩 ER-Diagramme
 
-![ER-Diagramm](./images/ER_Diagramm.png)
+[ER-Diagramm](./images/ER_Diagramm.png)
 
 ## 📦 Klassendiagramme
 
-![UML-Diagramm](./images/UML_Diagramm.png)
+[UML-Diagramm](./images/UML_Diagramm.png)
 
 
 ## 👥 Teammitglieder
