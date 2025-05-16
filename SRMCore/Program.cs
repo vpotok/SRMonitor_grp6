@@ -191,15 +191,8 @@ using (var scope = app.Services.CreateScope())
     // User
     if (!db.Users.Any())
     {
-                var adminPw = Environment.GetEnvironmentVariable("DEFAULT_ADMIN_PASSWORD");
-        var userPw = Environment.GetEnvironmentVariable("DEFAULT_USER_PASSWORD");
-
-        if (string.IsNullOrEmpty(adminPw) || string.IsNullOrEmpty(userPw))
-        {
-            throw new Exception("⚠️ Standardpasswörter nicht gesetzt. Bitte .env prüfen.");
-        }
-
-                var adminPw = Environment.GetEnvironmentVariable("DEFAULT_ADMIN_PASSWORD");
+    
+        var adminPw = Environment.GetEnvironmentVariable("DEFAULT_ADMIN_PASSWORD");
         var userPw = Environment.GetEnvironmentVariable("DEFAULT_USER_PASSWORD");
 
         if (string.IsNullOrEmpty(adminPw) || string.IsNullOrEmpty(userPw))
@@ -208,10 +201,6 @@ using (var scope = app.Services.CreateScope())
         }
 
         db.Users.AddRange(
-            new User { UserName = "alpha_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPw), Role = "customeradmin", ComId = companyA.ComId },
-            new User { UserName = "alpha_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword(userPw), Role = "customer", ComId = companyA.ComId },
-            new User { UserName = "beta_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPw), Role = "customeradmin", ComId = companyB.ComId },
-            new User { UserName = "beta_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword(userPw), Role = "customer", ComId = companyB.ComId }
             new User { UserName = "alpha_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPw), Role = "customeradmin", ComId = companyA.ComId },
             new User { UserName = "alpha_user", PasswordHash = BCrypt.Net.BCrypt.HashPassword(userPw), Role = "customer", ComId = companyA.ComId },
             new User { UserName = "beta_admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPw), Role = "customeradmin", ComId = companyB.ComId },
