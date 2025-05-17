@@ -1,0 +1,71 @@
+name: CI-Workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Setup .NET
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    # .NET Build (Auth)
+    - name: Build Auth
+      working-directory: /SRMAuth
+      run: dotnet build
+
+    # .NET Build (Core)
+    - name: Build Core
+      working-directory: /SRMCore
+      run: dotnet build
+
+    # .NET Build (Agent)
+    - name: Build Agent
+      working-directory: /SRMAgent
+      run: dotnet build
+
+    - name: Debug - Print Current Working
+      run: pwd
+
+    # Docker Build und Start (Container Compose Core)
+    #- name: Build and Run Docker Container 1
+    #  working-directory: /
+    #  run: |
+    #    docker build -t mein-container-1 .
+    #    container_id_1=$(docker run -d mein-container-1)
+    #    echo "CONTAINER_ID_1=$container_id_1" >> $GITHUB_ENV
+
+    # Docker Build und Start (Container 2)
+    #- name: Build and Run Docker Container 2
+    #  working-directory: Pfad/zum/zweiten/Dockerfile/
+    #  run: |
+    #    docker build -t mein-container-2 .
+    #    container_id_2=$(docker run -d mein-container-2)
+    #    echo "CONTAINER_ID_2=$container_id_2" >> $GITHUB_ENV
+
+    # Warte kurz (optional)
+    - name: Wait (optional)
+      run: sleep 5
+
+    # Verwerfe Container
+    #- name: Stop and Remove Docker Containers
+    #  if: always()
+    #  run: |
+    #    if [ -n "${{ env.CONTAINER_ID_1 }}" ]; then
+    #      docker stop "${{ env.CONTAINER_ID_1 }}"
+    #      docker rm "${{ env.CONTAINER_ID_1 }}"
+    #    fi
+    #    if [ -n "${{ env.CONTAINER_ID_2 }}" ]; then
+    #      docker stop "${{ env.CONTAINER_ID_2 }}"
+    #      docker rm "${{ env.CONTAINER_ID_2 }}"
+    #    fi
