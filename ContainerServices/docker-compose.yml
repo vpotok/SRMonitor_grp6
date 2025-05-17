@@ -1,21 +1,29 @@
+version: '3.9'
+
 networks:
   redmine_net:
   redmineDB_net:
+  srm-network:
 
 services:
 
   redmine:
     image: redmine
     restart: always
+    ports:
+      - "3000:3000"
     networks:
       - redmine_net
       - redmineDB_net
+      - srm-network
+    env_file:
+      - .env
     environment:
-      REDMINE_DB_MYSQL: db
+      REDMINE_DB_MYSQL: redmine-db
       REDMINE_DB_PASSWORD: ${REDMINE_DB_PASSWORD}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     depends_on:
-      - db
+      - redmine-db
     volumes:
       - ./redmine-init-scripts:/usr/src/redmine/init
     command: >
@@ -25,29 +33,89 @@ services:
       sleep 30;
       bundle exec rails runner /usr/src/redmine/init/enable_api.rb;
       bundle exec rails runner /usr/src/redmine/init/set_admin_password.rb;
-      bundle exec rails runner /usr/src/redmine/init/create_user_john.rb;
+      bundle exec rails runner /usr/src/redmine/init/create_user_company.rb;
       bundle exec rails runner /usr/src/redmine/init/create_project_with_critical.rb;
       wait
       "
 
-  db:
+  redmine-db:
     image: mysql:8.0
     restart: always
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: redmine
+      MYSQL_USER: redmine
+      MYSQL_PASSWORD: ${REDMINE_DB_PASSWORD}
     networks:
       - redmineDB_net
 
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - srm-network
+
+  srm-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: srm-db
+    env_file:
+      - .env
+    environment:
+      SA_PASSWORD: ${SA_PASSWORD}
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - srm-network
+
+  token-service:
+    build: ../SRMAuth
+    ports:
+      - "5000:8080"
+    env_file:
+      - .env
+    environment:
+      JWT_KEY: ${JWT_KEY}
+      REDIS_CONNECTION: ${REDIS_CONNECTION}
+    depends_on:
+      - redis
+    networks:
+      - srm-network
+
+  core-service:
+    build: ../SRMCore
+    ports:
+      - "5001:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./redmine-init-scripts:/init-scripts
+
+    environment:
+      Redmine__ApiKey: ${REDMINE_API_KEY}
+      CORE_DB_CONNECTION: ${CORE_DB_CONNECTION}
     depends_on:
       - redmine
-    ports:
-      - "443:443"
-    volumes:
-      - ./certs:/etc/nginx/certs:ro
-      - ./nginx:/etc/nginx/conf.d:ro
+      - redis
+      - token-service
+      - srm-db
     networks:
+      - srm-network
       - redmine_net
+
+  web-service:
+    build: ../SRMApp
+    container_name: srmapp
+    ports:
+      - "5173:80"
+    env_file:
+      - .env
+    depends_on:
+      - core-service
+      - token-service
+    networks:
+      - srm-network
