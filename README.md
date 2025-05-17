@@ -69,7 +69,7 @@ SRMonitor ist eine verteilte Anwendung zur Überwachung von Serverräumen, beste
 
 ## 👥 Teammitglieder
 
-- Viktoria Potok  
+- Victoria Potok  
 - Thomas Bacher  
 - Ibrahim Farghali  
 - Alexander Zimmermann  
